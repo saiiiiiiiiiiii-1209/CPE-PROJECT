@@ -24,7 +24,7 @@ function HomePage() {
     if (role === "Receptionist") {
       navigate("/receptionist-dashboard");
     } else if (role === "Doctor") {
-      alert("Doctor Dashboard coming soon!");
+      navigate("/doctor-dashboard");
     }
     closePopup();
   };

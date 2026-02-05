@@ -13,20 +13,30 @@ import { AnimatePresence } from "framer-motion";
 // ==================== IMPORT COMPONENTS ====================
 // HomePages: Landing page component
 // ReceptionistDashboard: Main dashboard layout with sidebar
+// DoctorDashboard: Doctor dashboard layout with sidebar
 // DashboardHome: Dashboard home/overview page
 // Appointments: Appointments management page
 // Patients: Patients management page
 // Doctors: Doctors management page
 // Reports: Reports and analytics page
 // Services: Hospital services listing page
+// DoctorDashboardHome: Doctor dashboard home page
+// DoctorAppointments: Doctor appointments management
+// DoctorPatients: Doctor patients management
+// DoctorProfile: Doctor profile management
 import HomePages from "./Webpages/HomePages";
 import ReceptionistDashboard from "./Webpages/ReceptionistDashboard";
+import DoctorDashboard from "./Webpages/DoctorDashboard";
 import DashboardHome from "./Webpages/DashboardHome";
 import Appointments from "./Webpages/Appointments";
 import Patients from "./Webpages/Patients";
 import Doctors from "./Webpages/Doctors";
 import Reports from "./Webpages/Reports";
 import Services from "./Webpages/Services";
+import DoctorDashboardHome from "./Webpages/doctor/DoctorDashboardHome";
+import DoctorAppointments from "./Webpages/doctor/DoctorAppointments";
+import DoctorPatients from "./Webpages/doctor/DoctorPatients";
+import DoctorProfile from "./Webpages/doctor/DoctorProfile";
 
 function App() {
   // ==================== LOCATION HOOK ====================
@@ -39,8 +49,8 @@ function App() {
     // mode="wait": Waits for exit animation before showing new page
     // key={location.pathname}: Triggers animation on route change
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        
+      <Routes>
+
         {/* ==================== LANDING PAGE ==================== */}
         {/* Home page with login buttons for Receptionist/Doctor */}
         <Route path="/" element={<HomePages />} />
@@ -49,25 +59,44 @@ function App() {
         {/* This route uses a nested structure with ReceptionistDashboard as parent */}
         {/* The Outlet in ReceptionistDashboard renders the child routes below */}
         <Route path="/receptionist-dashboard" element={<ReceptionistDashboard />}>
-          
+
           {/* Dashboard Home - Overview page with stats and quick actions */}
           <Route index element={<DashboardHome />} />
-          
+
           {/* Appointments - Appointment management page */}
           <Route path="appointments" element={<Appointments />} />
-          
+
           {/* Patients - Patient management page */}
           <Route path="patients" element={<Patients />} />
-          
+
           {/* Doctors - Doctor information page */}
           <Route path="doctors" element={<Doctors />} />
-          
+
           {/* Reports - Analytics and reports page */}
           <Route path="reports" element={<Reports />} />
-          
+
           {/* Services - Hospital services listing page */}
           <Route path="services" element={<Services />} />
-          
+
+        </Route>
+
+        {/* ==================== DOCTOR DASHBOARD LAYOUT ==================== */}
+        {/* This route uses a nested structure with DoctorDashboard as parent */}
+        {/* The Outlet in DoctorDashboard renders the child routes below */}
+        <Route path="/doctor-dashboard" element={<DoctorDashboard />}>
+
+          {/* Doctor Dashboard Home - Overview page with stats and quick actions */}
+          <Route index element={<DoctorDashboardHome />} />
+
+          {/* My Appointments - Doctor's appointment management page */}
+          <Route path="appointments" element={<DoctorAppointments />} />
+
+          {/* My Patients - Doctor's patient management page */}
+          <Route path="patients" element={<DoctorPatients />} />
+
+          {/* My Profile - Doctor's profile management page */}
+          <Route path="profile" element={<DoctorProfile />} />
+
         </Route>
 
         {/* ==================== UNKNOWN ROUTES ==================== */}
@@ -80,4 +109,3 @@ function App() {
 }
 
 export default App;
-
