@@ -4,7 +4,7 @@ import React from "react";
 // Route: Individual route mapping path to component
 // Navigate: Redirect component for unknown routes
 // useLocation: Hook to get current location for animations
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 // ==================== FRAMER MOTION ====================
 // AnimatePresence: Enables animation when components are removed from DOM
 // mode="wait": Ensures exit animation completes before new entry animation starts
@@ -24,6 +24,7 @@ import { AnimatePresence } from "framer-motion";
 // DoctorAppointments: Doctor appointments management
 // DoctorPatients: Doctor patients management
 // DoctorProfile: Doctor profile management
+// Signup: User signup page
 import HomePages from "./Webpages/HomePages";
 import ReceptionistDashboard from "./Webpages/ReceptionistDashboard";
 import DoctorDashboard from "./Webpages/DoctorDashboard";
@@ -37,23 +38,23 @@ import DoctorDashboardHome from "./Webpages/doctor/DoctorDashboardHome";
 import DoctorAppointments from "./Webpages/doctor/DoctorAppointments";
 import DoctorPatients from "./Webpages/doctor/DoctorPatients";
 import DoctorProfile from "./Webpages/doctor/DoctorProfile";
+import Signup from "./Webpages/Signup";
 
 function App() {
-  // ==================== LOCATION HOOK ====================
-  // Used by AnimatePresence to track route changes for animations
-  const location = useLocation();
-
   return (
     // ==================== ANIMATE PRESENCE ====================
     // Wraps Routes to enable smooth page transitions
     // mode="wait": Waits for exit animation before showing new page
-    // key={location.pathname}: Triggers animation on route change
     <AnimatePresence mode="wait">
       <Routes>
 
         {/* ==================== LANDING PAGE ==================== */}
         {/* Home page with login buttons for Receptionist/Doctor */}
         <Route path="/" element={<HomePages />} />
+
+        {/* ==================== SIGNUP PAGE ==================== */}
+        {/* User signup page with form validation */}
+        <Route path="/signup" element={<Signup />} />
 
         {/* ==================== RECEPTIONIST DASHBOARD LAYOUT ==================== */}
         {/* This route uses a nested structure with ReceptionistDashboard as parent */}
@@ -109,3 +110,4 @@ function App() {
 }
 
 export default App;
+

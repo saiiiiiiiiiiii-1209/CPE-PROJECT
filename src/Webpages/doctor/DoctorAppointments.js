@@ -147,6 +147,27 @@ function DoctorAppointments() {
         </button>
       </div>
 
+      {/* ==================== SUMMARY STATISTICS ==================== */}
+      {/* Shows quick statistics about appointments */}
+      <div className="summary-stats">
+        <div className="summary-card">
+          <h4>Total Appointments</h4>
+          <p>{appointments.length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>Today's Appointments</h4>
+          <p>{appointments.filter((a) => a.date === new Date().toISOString().split("T")[0]).length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>Pending</h4>
+          <p>{appointments.filter((a) => a.status === "Pending").length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>Completed</h4>
+          <p>{appointments.filter((a) => a.status === "Completed").length}</p>
+        </div>
+      </div><br></br>
+
       {/* ==================== QUICK ACTIONS ==================== */}
       <div className="quick-actions">
         <h2>Quick Actions</h2>
@@ -350,26 +371,7 @@ function DoctorAppointments() {
         </div>
       )}
 
-      {/* ==================== SUMMARY STATISTICS ==================== */}
-      {/* Shows quick statistics about appointments */}
-      <div className="summary-stats">
-        <div className="summary-card">
-          <h4>Total Appointments</h4>
-          <p>{appointments.length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>Today's Appointments</h4>
-          <p>{appointments.filter((a) => a.date === new Date().toISOString().split("T")[0]).length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>Pending</h4>
-          <p>{appointments.filter((a) => a.status === "Pending").length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>Completed</h4>
-          <p>{appointments.filter((a) => a.status === "Completed").length}</p>
-        </div>
-      </div>
+      
     </div>
   );
 }
