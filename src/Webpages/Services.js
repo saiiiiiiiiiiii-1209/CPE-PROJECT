@@ -1,22 +1,12 @@
 import React, { useState } from "react";
+import "./Services.css";
 
-// ==================== SERVICES PAGE ====================
-// This component displays hospital services and their details
-// Receptionists can view all available services offered by the hospital
 
 function Services() {
   // ==================== STATE ====================
   // Stores list of hospital services
   const [services] = useState([
-    {
-      id: 1,
-      name: "General Checkup",
-      description: "Routine health examination and diagnosis",
-      icon: "🩺",
-      price: "$50",
-      duration: "30 min",
-      available: true,
-    },
+   
     {
       id: 2,
       name: "Cardiology Consultation",
@@ -26,96 +16,7 @@ function Services() {
       duration: "45 min",
       available: true,
     },
-    {
-      id: 3,
-      name: "Dental Care",
-      description: "Complete dental examination and treatment",
-      icon: "🦷",
-      price: "$80",
-      duration: "30 min",
-      available: true,
-    },
-    {
-      id: 4,
-      name: "Neurology Consultation",
-      description: "Brain and nervous system specialist care",
-      icon: "🧠",
-      price: "$180",
-      duration: "60 min",
-      available: true,
-    },
-    {
-      id: 5,
-      name: "Orthopedics",
-      description: "Bone and joint treatment and surgery",
-      icon: "🦴",
-      price: "$200",
-      duration: "45 min",
-      available: true,
-    },
-    {
-      id: 6,
-      name: "Pediatrics",
-      description: "Child healthcare and development monitoring",
-      icon: "👶",
-      price: "$70",
-      duration: "30 min",
-      available: true,
-    },
-    {
-      id: 7,
-      name: "Laboratory Tests",
-      description: "Blood tests, urine tests, and diagnostics",
-      icon: "🔬",
-      price: "$40",
-      duration: "15 min",
-      available: true,
-    },
-    {
-      id: 8,
-      name: "X-Ray & Imaging",
-      description: "X-ray, MRI, CT scan services",
-      icon: "📷",
-      price: "$100",
-      duration: "20 min",
-      available: true,
-    },
-    {
-      id: 9,
-      name: "Emergency Care",
-      description: "24/7 emergency medical services",
-      icon: "🚨",
-      price: "$300",
-      duration: "Variable",
-      available: true,
-    },
-    {
-      id: 10,
-      name: "Pharmacy",
-      description: "On-site pharmacy for medications",
-      icon: "💊",
-      price: "Varies",
-      duration: "10 min",
-      available: true,
-    },
-    {
-      id: 11,
-      name: "Physical Therapy",
-      description: "Rehabilitation and physical recovery",
-      icon: "💪",
-      price: "$120",
-      duration: "60 min",
-      available: true,
-    },
-    {
-      id: 12,
-      name: "Vaccination",
-      description: "Immunization and vaccine services",
-      icon: "💉",
-      price: "$30",
-      duration: "15 min",
-      available: true,
-    },
+    
   ]);
 
   // Search functionality

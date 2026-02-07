@@ -7,7 +7,6 @@ import Carousel from "react-bootstrap/Carousel";
 
 function HomePage() {
   const [showPopup, setShowPopup] = useState(false);
-  const [showSignupPopup, setShowSignupPopup] = useState(false);
   const [role, setRole] = useState("");
 
   const navigate = useNavigate();
@@ -16,16 +15,9 @@ function HomePage() {
   const openLoginPopup = (userRole) => {
     setRole(userRole);
     setShowPopup(true);
-    setShowSignupPopup(false);
-  };
-
-  const openSignupPopup = () => {
-    setShowSignupPopup(true);
-    setShowPopup(false);
   };
 
   const closePopup = () => setShowPopup(false);
-  const closeSignupPopup = () => setShowSignupPopup(false);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -35,13 +27,6 @@ function HomePage() {
       navigate("/doctor-dashboard");
     }
     closePopup();
-  };
-
-  const handleSignup = (e) => {
-    e.preventDefault();
-    // After successful signup, redirect to login
-    closeSignupPopup();
-    setShowPopup(true);
   };
 
   const scrollToAbout = () => {
@@ -54,10 +39,16 @@ function HomePage() {
       <header className="header">
         <div className="logo">🏥 Advance Hospital</div>
         <nav>
-          <a href="#">Home</a>
-          <a onClick={scrollToAbout} style={{ cursor: "pointer" }}>
+          <a href="/">Home</a>
+          <button onClick={scrollToAbout} style={{ cursor: "pointer", background: "none", border: "none", color: "inherit", fontSize: "inherit" }}>
             About Us
-          </a>
+          </button>
+          <button
+            className="login-btn"
+            onClick={() => navigate("/signup")}
+          >
+            Sign Up
+          </button>
           <button
             className="login-btn"
             onClick={() => openLoginPopup("Receptionist")}
@@ -161,50 +152,6 @@ function HomePage() {
                 Cancel
               </button>
             </div>
-            <p style={{ textAlign: "center", marginTop: "15px", fontSize: "14px" }}>
-              Don't have an account?{" "}
-              <span
-                style={{ color: "#0077b6", cursor: "pointer", fontWeight: "600" }}
-                onClick={openSignupPopup}
-              >
-                Sign Up
-              </span>
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* ===== SIGNUP POPUP ===== */}
-      {showSignupPopup && (
-        <div className="popup-overlay">
-          <div className="popup">
-            <h2>Create Account</h2>
-            <form onSubmit={handleSignup}>
-              <input type="text" placeholder="Full Name" required />
-              <input type="email" placeholder="Email Address" required />
-              <input type="text" placeholder="Username" required />
-              <input type="text" placeholder="Mobile Number" required />
-              <input type="password" placeholder="Password" required minLength="6" />
-              <input type="password" placeholder="Confirm Password" required />
-              
-              <div className="popup-actions">
-                <button type="submit" className="login">
-                  Sign Up
-                </button>
-                <button type="button" className="cancel" onClick={closeSignupPopup}>
-                  Cancel
-                </button>
-              </div>
-            </form>
-            <p style={{ textAlign: "center", marginTop: "15px", fontSize: "14px" }}>
-              Already have an account?{" "}
-              <span
-                style={{ color: "#0077b6", cursor: "pointer", fontWeight: "600" }}
-                onClick={() => openLoginPopup(role)}
-              >
-                Login
-              </span>
-            </p>
           </div>
         </div>
       )}
@@ -213,7 +160,7 @@ function HomePage() {
       <footer className="footer">
         <div>
           <h4>Advance Hospital</h4>
-          <p>Nashik, Maharashtra</p>
+          <p>Dhule, Maharashtra</p>
           <p>Email: support@advancehospital.com</p>
         </div>
 
@@ -227,8 +174,8 @@ function HomePage() {
           <h4>Hospital Location</h4>
           <iframe
             title="hospital-map"
-            src="https://www.google.com/maps?q=nashik&output=embed"
-          ></iframe>
+            src="https://www.google.com/maps/embed?pb=!4v1770462259569!6m8!1m7!1sVxVvvQZtKJZjePpUvFAzAQ!2m2!1d20.91664272034978!2d74.77042149969776!3f119.09408205301271!4f28.71417756552215!5f0.7820865974627469">
+         </iframe>
         </div>
       </footer>
     </div>
@@ -236,4 +183,3 @@ function HomePage() {
 }
 
 export default HomePage;
-

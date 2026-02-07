@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { useNavigate, Outlet, Link } from "react-router-dom";
 import "./ReceptionistDashboard.css";
 
+
 // ==================== RECEPTIONIST DASHBOARD ====================
 // This is the main layout component for the receptionist area
 // It contains a sidebar with navigation and a main content area
@@ -24,12 +25,16 @@ function ReceptionistDashboard() {
   // Each item has: id, label, icon, and optional sub-items
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: "🏠" },
-    { id: "appointments", label: "Appointments", icon: "📅" },
+    { id: "appointments", label: "Appointments", icon: "📅" },];
+  const menuItems1 = [
     { id: "patients", label: "Patients", icon: "👥" },
-    { id: "doctors", label: "Doctors", icon: "👨‍⚕️" },
-    { id: "reports", label: "Reports", icon: "📊" },
+    { id: "doctors", label: "Doctors", icon: "👨‍⚕️" },];
+  const menuItems2 = [
+    { id: "laboratory", label: "Laboratory", icon: "🔬" },
     { id: "services", label: "Services", icon: "🏥" },
+     { id: "department", label: "Department", icon: "🏥" },
   ];
+  
 
   // ==================== HANDLER FUNCTIONS ====================
   // Handle navigation when a sidebar item is clicked
@@ -55,12 +60,14 @@ function ReceptionistDashboard() {
         {/* Sidebar header with hospital logo/name */}
         <div className="sidebar-header">
           <div className="hospital-logo">🏥</div>
-          <h2>MediCare Hospital</h2>
+          <h2>Clinic Dashboard</h2>
         </div>
-
+        
         {/* Navigation menu */}
         {/* Uses map to render menu items dynamically */}
+        <div>
         <ul className="sidebar-menu">
+          <label className="a">MAIN</label>
           {menuItems.map((item) => (
             <li
               key={item.id}
@@ -74,6 +81,38 @@ function ReceptionistDashboard() {
             </li>
           ))}
         </ul>
+
+        <ul className="sidebar-menu1">
+          <label className="ab">PEOPLE</label>
+          {menuItems1.map((item) => (
+            <li
+              key={item.id}
+              // Apply 'active' class if this item is currently selected
+              className={activePage === item.id ? "active" : ""}
+              // On click, navigate to the corresponding page
+              onClick={() => handleNavigation(item.id)}
+            >
+              <span className="menu-icon">{item.icon}</span>
+              <span className="menu-label">{item.label}</span>
+            </li>
+          ))}
+        </ul>
+
+        <ul className="sidebar-menu2">
+          <label className="abc">MEDICAL</label>
+          {menuItems2.map((item) => (
+            <li
+              key={item.id}
+              // Apply 'active' class if this item is currently selected
+              className={activePage === item.id ? "active" : ""}
+              // On click, navigate to the corresponding page
+              onClick={() => handleNavigation(item.id)}
+            >
+              <span className="menu-icon">{item.icon}</span>
+              <span className="menu-label">{item.label}</span>
+            </li>
+          ))}
+        </ul></div>
 
         {/* Logout button */}
         {/* Separated from main menu for visual distinction */}

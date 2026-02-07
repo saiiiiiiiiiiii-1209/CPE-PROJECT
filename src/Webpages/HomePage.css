@@ -354,24 +354,6 @@ nav a:hover {
   box-shadow: 0 5px 20px rgba(0,119,182,0.4);
 }
 
-.signup {
-  flex: 1;
-  background: linear-gradient(135deg, #00b4d8, #0096c7);
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.signup:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(0,180,216,0.4);
-}
-
 .cancel {
   flex: 1;
   background: #f1f5f9;

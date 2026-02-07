@@ -8,11 +8,11 @@ function Patients() {
   // ==================== STATE ====================
   // Stores list of patients
   const [patients, setPatients] = useState([
-    { id: 1, name: "John Doe", age: 45, gender: "Male", phone: "9876543210", email: "john@example.com", address: "123 Main St", joinDate: "2024-01-10" },
-    { id: 2, name: "Jane Smith", age: 32, gender: "Female", phone: "9876543211", email: "jane@example.com", address: "456 Oak Ave", joinDate: "2024-01-08" },
-    { id: 3, name: "Mike Brown", age: 28, gender: "Male", phone: "9876543212", email: "mike@example.com", address: "789 Pine Rd", joinDate: "2024-01-05" },
-    { id: 4, name: "Sarah Wilson", age: 55, gender: "Female", phone: "9876543213", email: "sarah@example.com", address: "321 Elm St", joinDate: "2024-01-03" },
-    { id: 5, name: "David Lee", age: 40, gender: "Male", phone: "9876543214", email: "david@example.com", address: "654 Maple Dr", joinDate: "2024-01-01" },
+    // { id: 1, name: "John Doe", age: 45, gender: "Male", phone: "9876543210", email: "john@example.com", address: "123 Main St", joinDate: "2024-01-10" },
+    // { id: 2, name: "Jane Smith", age: 32, gender: "Female", phone: "9876543211", email: "jane@example.com", address: "456 Oak Ave", joinDate: "2024-01-08" },
+    // { id: 3, name: "Mike Brown", age: 28, gender: "Male", phone: "9876543212", email: "mike@example.com", address: "789 Pine Rd", joinDate: "2024-01-05" },
+    // { id: 4, name: "Sarah Wilson", age: 55, gender: "Female", phone: "9876543213", email: "sarah@example.com", address: "321 Elm St", joinDate: "2024-01-03" },
+    // { id: 5, name: "David Lee", age: 40, gender: "Male", phone: "9876543214", email: "david@example.com", address: "654 Maple Dr", joinDate: "2024-01-01" },
   ]);
 
   // Controls form visibility
@@ -79,11 +79,32 @@ function Patients() {
     <div className="patients-page">
       {/* ==================== PAGE HEADER ==================== */}
       <div className="page-header">
-        <h1>Patients Management</h1>
+        <h1>Patients List</h1>
         <button className="add-btn" onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "+ Add New Patient"}
         </button>
       </div>
+
+      {/* ==================== SUMMARY STATISTICS ==================== */}
+      {/* Shows quick statistics about patients */}
+      <div className="summary-stats">
+        <div className="summary-card">
+          <h4>Total Patients</h4>
+          <p>{patients.length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>Male</h4>
+          <p>{patients.filter((p) => p.gender === "Male").length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>Female</h4>
+          <p>{patients.filter((p) => p.gender === "Female").length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>New This Week</h4>
+          <p>{patients.filter((p) => new Date(p.joinDate) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</p>
+        </div>
+      </div><br></br>
 
       {/* ==================== SEARCH BAR ==================== */}
       {/* Allows receptionist to search patients by name, phone, or email */}
@@ -203,26 +224,7 @@ function Patients() {
         </table>
       </div>
 
-      {/* ==================== SUMMARY STATISTICS ==================== */}
-      {/* Shows quick statistics about patients */}
-      <div className="summary-stats">
-        <div className="summary-card">
-          <h4>Total Patients</h4>
-          <p>{patients.length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>Male</h4>
-          <p>{patients.filter((p) => p.gender === "Male").length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>Female</h4>
-          <p>{patients.filter((p) => p.gender === "Female").length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>New This Week</h4>
-          <p>{patients.filter((p) => new Date(p.joinDate) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</p>
-        </div>
-      </div>
+      
     </div>
   );
 }

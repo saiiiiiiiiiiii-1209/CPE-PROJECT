@@ -8,10 +8,10 @@ function Appointments() {
   // ==================== STATE ====================
   // Stores list of appointments
   const [appointments, setAppointments] = useState([
-    { id: 1, patient: "John Doe", doctor: "Dr. Smith", date: "2024-01-15", time: "10:00 AM", status: "Confirmed", type: "General" },
-    { id: 2, patient: "Jane Smith", doctor: "Dr. Johnson", date: "2024-01-15", time: "11:00 AM", status: "Pending", type: "Cardiology" },
-    { id: 3, patient: "Mike Brown", doctor: "Dr. Williams", date: "2024-01-16", time: "09:00 AM", status: "Confirmed", type: "Dental" },
-    { id: 4, patient: "Sarah Wilson", doctor: "Dr. Smith", date: "2024-01-16", time: "02:00 PM", status: "Cancelled", type: "General" },
+    // { id: 1, patient: "John Doe", doctor: "Dr. Smith", date: "2024-01-15", time: "10:00 AM", status: "Confirmed", type: "General" },
+    // { id: 2, patient: "Jane Smith", doctor: "Dr. Johnson", date: "2024-01-15", time: "11:00 AM", status: "Pending", type: "Cardiology" },
+    // { id: 3, patient: "Mike Brown", doctor: "Dr. Williams", date: "2024-01-16", time: "09:00 AM", status: "Confirmed", type: "Dental" },
+    // { id: 4, patient: "Sarah Wilson", doctor: "Dr. Smith", date: "2024-01-16", time: "02:00 PM", status: "Cancelled", type: "General" },
   ]);
 
   // Controls form visibility
@@ -66,12 +66,30 @@ function Appointments() {
     <div className="appointments-page">
       {/* ==================== PAGE HEADER ==================== */}
       <div className="page-header">
-        <h1>Appointments Management</h1>
+        <h1>Appointments </h1>
         <button className="add-btn" onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "+ New Appointment"}
         </button>
       </div>
 
+      <div className="summary-stats">
+        <div className="summary-card">
+          <h4>Total Appointments</h4>
+          <p>{appointments.length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>Confirmed</h4>
+          <p>{appointments.filter((a) => a.status === "Confirmed").length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>Pending</h4>
+          <p>{appointments.filter((a) => a.status === "Pending").length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>Cancelled</h4>
+          <p>{appointments.filter((a) => a.status === "Cancelled").length}</p>
+        </div>
+      </div><br></br>
       {/* ==================== NEW APPOINTMENT FORM ==================== */}
       {/* Hidden by default, shown when "+ New Appointment" is clicked */}
       {showForm && (
@@ -172,24 +190,7 @@ function Appointments() {
 
       {/* ==================== SUMMARY STATISTICS ==================== */}
       {/* Shows quick statistics about appointments */}
-      <div className="summary-stats">
-        <div className="summary-card">
-          <h4>Total Appointments</h4>
-          <p>{appointments.length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>Confirmed</h4>
-          <p>{appointments.filter((a) => a.status === "Confirmed").length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>Pending</h4>
-          <p>{appointments.filter((a) => a.status === "Pending").length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>Cancelled</h4>
-          <p>{appointments.filter((a) => a.status === "Cancelled").length}</p>
-        </div>
-      </div>
+      
     </div>
   );
 }

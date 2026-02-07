@@ -1,11 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate, Outlet } from "react-router-dom";
-import "./DoctorDashboard.css";
+import { useNavigate } from "react-router-dom";
+import "./HomePage.css"; // Use homepage CSS for consistent styling
 
 function Signup() {
-  // ==================== STATE ====================
-  const [activePage, setActivePage] = useState("dashboard");
-
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -18,23 +15,6 @@ function Signup() {
   const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
-
-  // ==================== SIDEBAR ITEMS ====================
-  const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: "🏠" },
-    { id: "appointments", label: "My Appointments", icon: "📅" },
-    { id: "patients", label: "My Patients", icon: "👥" },
-    { id: "profile", label: "My Profile", icon: "👨‍⚕️" },
-  ];
-
-  // ==================== HANDLERS ====================
-  const handleNavigation = (pageId) => {
-    navigate(`/doctor-dashboard/${pageId === "dashboard" ? "" : pageId}`);
-  };
-
-  const handleLogout = () => {
-    navigate("/");
-  };
 
   // ==================== INPUT HANDLER ====================
   const handleChange = (e) => {
@@ -115,38 +95,23 @@ function Signup() {
 
   // ==================== RENDER ====================
   return (
-    <div className="doctor-container">
-      {/* SIDEBAR */}
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <div className="hospital-logo">🏥</div>
-          <h2>MediCare Hospital</h2>
-          <p className="doctor-name">Dr. Pranjal Patil</p>
-        </div>
+    <div className="container-fluid">
+      {/* ===== HEADER ===== */}
+      <header className="header">
+        <div className="logo">🏥 Advance Hospital</div>
+        <nav>
+          <a href="#" onClick={() => navigate("/")}>Home</a>
+          <button
+            className="login-btn"
+            onClick={() => navigate("/")}
+          >
+            Back to Home
+          </button>
+        </nav>
+      </header>
 
-        <ul className="sidebar-menu">
-          {menuItems.map((item) => (
-            <li
-              key={item.id}
-              className={activePage === item.id ? "active" : ""}
-              onClick={() => handleNavigation(item.id)}
-            >
-              <span className="menu-icon">{item.icon}</span>
-              <span className="menu-label">{item.label}</span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="sidebar-footer">
-          <li className="logout" onClick={handleLogout}>
-            <span className="menu-icon">🚪</span>
-            <span className="menu-label">Logout</span>
-          </li>
-        </div>
-      </div>
-
-      {/* MAIN CONTENT */}
-      <div className="main-content">
+      {/* ===== SIGNUP FORM ===== */}
+      <div className="signup-container">
         <div className="form-container">
           <h3>Create Account</h3>
 
@@ -235,7 +200,6 @@ function Signup() {
             </div>
           </form>
         </div>
-        <Outlet />
       </div>
     </div>
   );
