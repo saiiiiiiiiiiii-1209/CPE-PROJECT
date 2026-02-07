@@ -78,7 +78,7 @@ function DoctorDashboardHome() {
       {/* ==================== PAGE HEADER ==================== */}
       {/* Displays welcome message and date */}
       <div className="dashboard-header">
-        <h1>Welcome back, Dr. Pranjal Patil</h1>
+        <h1>Welcome, Dr. Pranjal Patil</h1>
         <p className="subtitle">
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",

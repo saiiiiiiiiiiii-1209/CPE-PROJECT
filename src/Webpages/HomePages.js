@@ -160,7 +160,7 @@ function HomePage() {
       <footer className="footer">
         <div>
           <h4>Advance Hospital</h4>
-          <p>Nashik, Maharashtra</p>
+          <p>Dhule, Maharashtra</p>
           <p>Email: support@advancehospital.com</p>
         </div>
 
@@ -174,8 +174,8 @@ function HomePage() {
           <h4>Hospital Location</h4>
           <iframe
             title="hospital-map"
-            src="https://www.google.com/maps?q=nashik&output=embed"
-          ></iframe>
+            src="https://www.google.com/maps/embed?pb=!4v1770462259569!6m8!1m7!1sVxVvvQZtKJZjePpUvFAzAQ!2m2!1d20.91664272034978!2d74.77042149969776!3f119.09408205301271!4f28.71417756552215!5f0.7820865974627469">
+         </iframe>
         </div>
       </footer>
     </div>

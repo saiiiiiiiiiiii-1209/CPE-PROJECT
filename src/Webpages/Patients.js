@@ -79,7 +79,7 @@ function Patients() {
     <div className="patients-page">
       {/* ==================== PAGE HEADER ==================== */}
       <div className="page-header">
-        <h1>Patients Management</h1>
+        <h1>Patients List</h1>
         <button className="add-btn" onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "+ Add New Patient"}
         </button>

@@ -8,7 +8,7 @@ function Doctors() {
   // ==================== STATE ====================
   // Stores list of doctors
   const [doctors] = useState([
-    { id: 1, name: "Dr. John Smith", specialization: "Cardiology", department: "Cardiology", phone: "9876543210", email: "john.smith@hospital.com", availability: "Mon-Fri", status: "Available" },
+    { id: 1, name: "Dr. Pranjal Patil", specialization: "Cardiology", department: "Cardiology", phone: "9876543210", email: "pranjal@gmail.com", availability: "Mon-Sat", status: "Available" },
   ]);
 
   // Search functionality
@@ -34,6 +34,25 @@ function Doctors() {
         <h1>Our Doctors</h1>
         <button className="add-btn">+ Add New Doctor</button>
       </div>
+
+      <div className="summary-stats">
+        <div className="summary-card">
+          <h4>Total Doctors</h4>
+          <p>{doctors.length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>Available Today</h4>
+          <p>{doctors.filter((d) => d.status === "Available").length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>On Leave</h4>
+          <p>{doctors.filter((d) => d.status === "On Leave").length}</p>
+        </div>
+        <div className="summary-card">
+          <h4>Departments</h4>
+          <p>{departments.length - 1}</p>
+        </div>
+      </div><br></br>
 
       {/* ==================== SEARCH AND FILTER ==================== */}
       {/* Allows receptionist to search doctors and filter by department */}
@@ -83,7 +102,6 @@ function Doctors() {
               </div>
             </div>
             <div className="doctor-actions">
-              <button className="view-btn">View Schedule</button>
               <button className="edit-btn">Edit</button>
             </div>
           </div>
@@ -92,24 +110,7 @@ function Doctors() {
 
       {/* ==================== SUMMARY STATISTICS ==================== */}
       {/* Shows quick statistics about doctors */}
-      <div className="summary-stats">
-        <div className="summary-card">
-          <h4>Total Doctors</h4>
-          <p>{doctors.length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>Available Today</h4>
-          <p>{doctors.filter((d) => d.status === "Available").length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>On Leave</h4>
-          <p>{doctors.filter((d) => d.status === "On Leave").length}</p>
-        </div>
-        <div className="summary-card">
-          <h4>Departments</h4>
-          <p>{departments.length - 1}</p>
-        </div>
-      </div>
+
     </div>
   );
 }

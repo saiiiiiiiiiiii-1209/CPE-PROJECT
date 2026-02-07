@@ -66,7 +66,7 @@ function Appointments() {
     <div className="appointments-page">
       {/* ==================== PAGE HEADER ==================== */}
       <div className="page-header">
-        <h1>Appointments Management</h1>
+        <h1>Appointments </h1>
         <button className="add-btn" onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "+ New Appointment"}
         </button>
