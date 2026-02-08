@@ -278,7 +278,7 @@ function AdmitPatients() {
     <div className="admit-patients-page">
       {/* ==================== PAGE HEADER ==================== */}
       <div className="page-header">
-        <h1>Admitted Patients List</h1>
+        <h1>Admitted Patients Listttttttttttttt</h1>
         <button className="add-btn" onClick={handleAddFormOpen}>
           + Admit New Patient
         </button>
