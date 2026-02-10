@@ -9,13 +9,6 @@ function Patients() {
   const indianNames = [
     "Aarav Patel", "Aanya Sharma", "Aditya Kumar", "Ananya Gupta", "Arjun Singh",
     "Diya Reddy", "Ishaan Mehta", "Kavya Nair", "Lakshya Jain", "Maya Joshi",
-    "Neha Verma", "Ojas Kulkarni", "Priya Chatterjee", "Rahul Mishra", "Riya Desai",
-    "Sahil Khanna", "Tanvi Pandey", "Vihaan Rao", "Yashika Iyer", "Zara Malik",
-    "Amitabh Sharma", "Bharti Devi", "Chetan Bhat", "Disha Kapoor", "Eshan Gupta",
-    "Fatima Begum", "Gaurav Singh", "Hema Malini", "Irfaan Khan", "Jaya Prakash",
-    "Kiran Bedi", "Lalitha Devi", "Mohit Agarwal", "Nisha Reddy", "Om Prakash",
-    "Pooja Sharma", "Quasar Ahmed", "Rajesh Kumar", "Sonia Gandhi", "Tarun Das",
-    "Usha Devi", "Varun Sharma", "Waseem Ali", "Xena Kaur", "Yogesh Pandey",
   ];
 
   // ==================== CARDIOLOGY SYMPTOMS ====================
@@ -26,6 +19,30 @@ function Patients() {
     "Rapid Heartbeat", "Slow Heartbeat", "Chest Discomfort", "Coughing",
     "Ankle Swelling", "Bluish Skin", "Fainting", "Confusion",
   ];
+
+  // Dropdown state for symptoms
+  const [symptomsDropdownOpen, setSymptomsDropdownOpen] = useState(false);
+
+  // Toggle symptoms dropdown
+  const toggleSymptomsDropdown = () => {
+    setSymptomsDropdownOpen(!symptomsDropdownOpen);
+  };
+
+  // Handle symptom checkbox change
+  const handleSymptomCheckboxChange = (symptom) => {
+    const currentSymptoms = formData.symptoms;
+    if (Array.isArray(currentSymptoms) && currentSymptoms.includes(symptom)) {
+      setFormData({
+        ...formData,
+        symptoms: currentSymptoms.filter(s => s !== symptom),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        symptoms: Array.isArray(currentSymptoms) ? [...currentSymptoms, symptom] : [symptom],
+      });
+    }
+  };
 
   // ==================== STATE ====================
   // Stores list of patients with all required fields
@@ -392,14 +409,33 @@ function Patients() {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Symptoms</label>
-                    <input
-                      type="text"
-                      name="symptoms"
-                      placeholder="Describe symptoms"
-                      value={formData.symptoms}
-                      onChange={handleChange}
-                      list="cardiology-symptoms"
-                    />
+                    <div className="symptoms-dropdown">
+                      <div 
+                        className="symptoms-dropdown-header"
+                        onClick={toggleSymptomsDropdown}
+                      >
+                        <span>
+                          {Array.isArray(formData.symptoms) && formData.symptoms.length > 0 
+                            ? `${formData.symptoms.length} symptom(s) selected`
+                            : "Select symptoms..."}
+                        </span>
+                        <span className={`dropdown-arrow ${symptomsDropdownOpen ? 'open' : ''}`}>▼</span>
+                      </div>
+                      {symptomsDropdownOpen && (
+                        <div className="symptoms-dropdown-menu">
+                          {cardiologySymptoms.map((symptom) => (
+                            <label key={symptom} className="symptoms-checkbox-item">
+                              <input
+                                type="checkbox"
+                                checked={Array.isArray(formData.symptoms) && formData.symptoms.includes(symptom)}
+                                onChange={() => handleSymptomCheckboxChange(symptom)}
+                              />
+                              <span>{symptom}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="form-group">
                     <label>Profession</label>

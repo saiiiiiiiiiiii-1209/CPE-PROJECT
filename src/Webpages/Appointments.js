@@ -31,15 +31,7 @@ function Appointments() {
 
   // Indian names for autocomplete suggestions
   const indianNames = [
-    "Aarav Patel", "Aanya Sharma", "Aditya Kumar", "Ananya Gupta", "Arjun Singh",
-    "Diya Reddy", "Ishaan Mehta", "Kavya Nair", "Lakshya Jain", "Maya Joshi",
-    "Neha Verma", "Ojas Kulkarni", "Priya Chatterjee", "Rahul Mishra", "Riya Desai",
-    "Sahil Khanna", "Tanvi Pandey", "Vihaan Rao", "Yashika Iyer", "Zara Malik",
-    "Amitabh Sharma", "Bharti Devi", "Chetan Bhat", "Disha Kapoor", "Eshan Gupta",
-    "Fatima Begum", "Gaurav Singh", "Hema Malini", "Irfaan Khan", "Jaya Prakash",
-    "Kiran Bedi", "Lalitha Devi", "Mohit Agarwal", "Nisha Reddy", "Om Prakash",
-    "Pooja Sharma", "Quasar Ahmed", "Rajesh Kumar", "Sonia Gandhi", "Tarun Das",
-    "Usha Devi", "Varun Sharma", "Waseem Ali", "Xena Kaur", "Yogesh Pandey",
+    "Aarav Patel who i am",
   ];
 
   const handleChange = (e) => {
@@ -50,6 +42,15 @@ function Appointments() {
     });
   };
 
+  // Dropdown state for symptoms
+  const [symptomsDropdownOpen, setSymptomsDropdownOpen] = useState(false);
+
+  // Toggle symptoms dropdown
+  const toggleSymptomsDropdown = () => {
+    setSymptomsDropdownOpen(!symptomsDropdownOpen);
+  };
+
+  // Handle symptom checkbox change
   const handleSymptomCheckboxChange = (symptom) => {
     const currentSymptoms = formData.symptoms;
     if (currentSymptoms.includes(symptom)) {
@@ -193,17 +194,32 @@ function Appointments() {
                 <div className="form-row">
                   <div className="form-group full-width">
                     <label>Symptoms (Select all that apply)</label>
-                    <div className="symptoms-checkbox-grid">
-                      {cardiologySymptoms.map((symptom) => (
-                        <label key={symptom} className="symptom-checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={formData.symptoms.includes(symptom)}
-                            onChange={() => handleSymptomCheckboxChange(symptom)}
-                          />
-                          <span>{symptom}</span>
-                        </label>
-                      ))}
+                    <div className="symptoms-dropdown">
+                      <div 
+                        className="symptoms-dropdown-header"
+                        onClick={toggleSymptomsDropdown}
+                      >
+                        <span>
+                          {formData.symptoms.length > 0 
+                            ? `${formData.symptoms.length} symptom(s) selected`
+                            : "Select symptoms..."}
+                        </span>
+                        <span className={`dropdown-arrow ${symptomsDropdownOpen ? 'open' : ''}`}>▼</span>
+                      </div>
+                      {symptomsDropdownOpen && (
+                        <div className="symptoms-dropdown-menu">
+                          {cardiologySymptoms.map((symptom) => (
+                            <label key={symptom} className="symptoms-checkbox-item">
+                              <input
+                                type="checkbox"
+                                checked={formData.symptoms.includes(symptom)}
+                                onChange={() => handleSymptomCheckboxChange(symptom)}
+                              />
+                              <span>{symptom}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -352,17 +368,32 @@ function Appointments() {
                 <div className="form-row">
                   <div className="form-group full-width">
                     <label>Symptoms (Select all that apply)</label>
-                    <div className="symptoms-checkbox-grid">
-                      {cardiologySymptoms.map((symptom) => (
-                        <label key={symptom} className="symptom-checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={formData.symptoms.includes(symptom)}
-                            onChange={() => handleSymptomCheckboxChange(symptom)}
-                          />
-                          <span>{symptom}</span>
-                        </label>
-                      ))}
+                    <div className="symptoms-dropdown">
+                      <div 
+                        className="symptoms-dropdown-header"
+                        onClick={toggleSymptomsDropdown}
+                      >
+                        <span>
+                          {formData.symptoms.length > 0 
+                            ? `${formData.symptoms.length} symptom(s) selected`
+                            : "Select symptoms..."}
+                        </span>
+                        <span className={`dropdown-arrow ${symptomsDropdownOpen ? 'open' : ''}`}>▼</span>
+                      </div>
+                      {symptomsDropdownOpen && (
+                        <div className="symptoms-dropdown-menu">
+                          {cardiologySymptoms.map((symptom) => (
+                            <label key={symptom} className="symptoms-checkbox-item">
+                              <input
+                                type="checkbox"
+                                checked={formData.symptoms.includes(symptom)}
+                                onChange={() => handleSymptomCheckboxChange(symptom)}
+                              />
+                              <span>{symptom}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
