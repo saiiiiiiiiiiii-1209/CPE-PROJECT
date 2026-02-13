@@ -7,7 +7,7 @@ echo "🏥 Hospital Management System - Starting..."
 echo ""
 
 # Navigate to the project directory
-cd /Users/shreyavarade/Desktop/capstone\ project/project-
+cd /Users/shreyavarade/Desktop/cpp\ project\ copy/hoga-ekdin-be-positive-
 
 echo "📁 Current directory: $(pwd)"
 echo ""
