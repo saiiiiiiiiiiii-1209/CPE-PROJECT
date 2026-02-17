@@ -1,5 +1,5 @@
 .dashboard-home {
-  padding: 30px;
+  padding: 0px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   background: #F8FAFC;
   min-height: 100vh;
@@ -22,7 +22,7 @@
   letter-spacing: -0.5px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap:5px;
 }
 
 .dashboard-header h1:before {
@@ -31,12 +31,12 @@
 }
 
 .dashboard-header .subtitle {
-  margin: 10px 0 0;
+  margin: 10px 12px 0;
   font-size: 16px;
   opacity: 0.95;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 3px;
 }
 
 .dashboard-header .subtitle:before {
@@ -54,7 +54,7 @@
 .stat-card {
   background: #FFFFFF;
   border-radius: 20px;
-  padding: 25px;
+  padding: 10px;
   display: flex;
   align-items: center;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.02);
@@ -81,8 +81,9 @@
 }
 
 .stat-icon {
-  font-size: 48px;
-  margin-right: 20px;
+  font-size: 35px;
+  margin-top: 12px;
+  margin-right: 10px;
   background: #DBEAFE;
   padding: 12px;
   border-radius: 15px;
@@ -99,7 +100,7 @@
 .stat-info p {
   margin: 5px 0 0;
   color: #64748B;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;

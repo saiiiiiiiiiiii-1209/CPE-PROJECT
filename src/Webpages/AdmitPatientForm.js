@@ -1,11 +1,11 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdmitPatientForm.css";
+import AppointmentForm from "./AppointmentForm";
 
-function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableBeds, availableBeds }) {
+function AdmitPatientForm() {
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     patientName: "",
     patientId: "",
@@ -21,20 +21,59 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
     symptoms: [],
     admittingDoctor: ""
   });
-  
+
   const [errors, setErrors] = useState({});
   const [filteredPatients, setFilteredPatients] = useState([]);
   const [showPatientSuggestions, setShowPatientSuggestions] = useState(false);
-  const [availableBedsList, setAvailableBedsList] = useState(getAvailableBeds());
+  const [availableBedsList, setAvailableBedsList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [symptomsDropdownOpen, setSymptomsDropdownOpen] = useState(false);
+
+  // Load existing admissions from localStorage
+  const [existingAdmissions, setExistingAdmissions] = useState([]);
+
+  // Get available beds function
+  const getAvailableBeds = () => {
+    const allBeds = [
+      "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10",
+      "B11", "B12", "B13", "B14", "B15", "B16", "B17", "B18", "B19", "B20"
+    ];
+    const occupiedBeds = existingAdmissions
+      .filter(adm => adm.status === "Admitted")
+      .map(adm => adm.bedNo);
+    return allBeds.filter(bed => !occupiedBeds.includes(bed));
+  };
+
+  // Search patients function
+  const searchPatients = (query) => {
+    const savedPatients = localStorage.getItem('patients');
+    if (!savedPatients) return [];
+    const patients = JSON.parse(savedPatients);
+    return patients.filter(p =>
+      p.patientName?.toLowerCase().includes(query.toLowerCase()) ||
+      p.phone?.includes(query)
+    );
+  };
+
+  useEffect(() => {
+    // Load existing admissions
+    const savedAdmissions = localStorage.getItem('admissions');
+    if (savedAdmissions) {
+      setExistingAdmissions(JSON.parse(savedAdmissions));
+    }
+
+    // Update available beds
+    setAvailableBedsList(getAvailableBeds());
+  }, []);
 
   const cardiologySymptoms = [
-    "Chest Pain", "Shortness of Breath", "Palpitations", 
-    "High Blood Pressure", "Dizziness", "Fatigue", 
+    "Chest Pain", "Shortness of Breath", "Palpitations",
+    "High Blood Pressure", "Dizziness", "Fatigue",
     "Swelling in Legs", "Irregular Heartbeat"
   ];
 
   const getMinDate = () => new Date().toISOString().split('T')[0];
-  
+
   const validatePhone = (phone) => {
     if (!phone) return false;
     const cleaned = phone.replace(/\D/g, '');
@@ -61,33 +100,52 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
     return selectedDate >= today;
   };
 
+  // Check if bed is already occupied by an admitted patient
+  const isBedOccupied = (bedNo) => {
+    return existingAdmissions.some(adm => 
+      adm.bedNo === bedNo && adm.status === "Admitted"
+    );
+  };
+
+  // Ensure bed number is in correct format (e.g., B1, B2)
+  const formatBedNo = (bed) => {
+    if (!bed) return "";
+    const match = bed.match(/^[bB]?(\d+)$/);
+    return match ? `B${match[1]}` : bed;
+  };
+
   const validateForm = () => {
     const newErrors = {};
-    
-    if (!validateName(formData.patientName)) 
+
+    if (!validateName(formData.patientName))
       newErrors.patientName = "Patient name must be between 2-50 characters";
-    if (!validateAge(formData.age)) 
+    if (!validateAge(formData.age))
       newErrors.age = "Age must be between 1-120 years";
-    if (!validatePhone(formData.phone)) 
+    if (!validatePhone(formData.phone))
       newErrors.phone = "Enter valid 10-digit number starting with 7,8,9";
-    if (formData.kinContact && !validatePhone(formData.kinContact)) 
+    if (formData.kinContact && !validatePhone(formData.kinContact))
       newErrors.kinContact = "Enter valid 10-digit emergency contact number";
-    if (!formData.bedNo) 
+
+    const formattedBed = formatBedNo(formData.bedNo);
+    if (!formattedBed)
       newErrors.bedNo = "Please select a bed number";
-    else if (!availableBedsList.includes(formData.bedNo)) 
+    else if (!availableBedsList.includes(formattedBed))
       newErrors.bedNo = "Selected bed is not available";
-    if (!validateDate(formData.fromDate)) 
+    else if (isBedOccupied(formattedBed))
+      newErrors.bedNo = "This bed is already occupied by another patient";
+
+    if (!validateDate(formData.fromDate))
       newErrors.fromDate = "Admission date cannot be in the past";
     if (formData.toDate && formData.toDate < formData.fromDate)
       newErrors.toDate = "Discharge date cannot be before admission date";
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === "phone" || name === "kinContact") {
       const cleaned = value.replace(/\D/g, '');
       if (cleaned.length <= 10) setFormData(prev => ({ ...prev, [name]: cleaned }));
@@ -99,6 +157,7 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
       }
     } else if (name === "patientName") {
       setFormData(prev => ({ ...prev, [name]: value }));
+
       if (value.length >= 2) {
         const results = searchPatients(value);
         setFilteredPatients(results);
@@ -109,7 +168,7 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
-    
+
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
   };
 
@@ -140,26 +199,69 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+
+    setIsLoading(true);
+
+    const formattedBed = formatBedNo(formData.bedNo);
     
-    addAdmission(formData);
-    alert(`✅ Patient ${formData.patientName} admitted to Bed ${formData.bedNo}`);
-    onClose();
-    navigate("/receptionist-dashboard/admit-patients");
+    // Double-check if bed is still available
+    if (isBedOccupied(formattedBed)) {
+      alert(`❌ Bed ${formattedBed} is already occupied! Please select another bed.`);
+      setIsLoading(false);
+      return;
+    }
+
+    const submissionData = {
+      id: `ADM-${Date.now()}`,
+      ...formData,
+      bedNo: formattedBed,
+      admissionDate: new Date().toISOString().split('T')[0],
+      admissionTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+      status: "Admitted"
+    };
+
+    // Get existing admissions
+    const existingAdmissions = JSON.parse(localStorage.getItem('admissions') || '[]');
+    
+    // Add new admission
+    const updatedAdmissions = [...existingAdmissions, submissionData];
+    
+    // Save to localStorage
+    localStorage.setItem('admissions', JSON.stringify(updatedAdmissions));
+    
+    alert(`✅ Patient ${formData.patientName} admitted to Bed ${formattedBed}`);
+    
+    setIsLoading(false);
+    
+    // Navigate to admit list
+    navigate("/receptionist-dashboard/admitlist");
+  };
+
+  const handleCancel = () => {
+    // Direct navigation to admit list
+    navigate("/receptionist-dashboard/admitlist");
   };
 
   return (
-    <div className="form-overlay" onClick={onClose}>
-      <div className="form-container" onClick={(e) => e.stopPropagation()}>
+    <div className="form-overlay">
+      <div className="form-container">
         <div className="form-header">
           <h3>🏥 Admit Patient</h3>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button 
+            className="close-btn" 
+            onClick={handleCancel} 
+            disabled={isLoading}
+            type="button"
+          >
+            ×
+          </button>
         </div>
-        
+
         <form onSubmit={handleSubmit}>
           <datalist id="bed-numbers">
             {availableBedsList.map((bed, i) => <option key={i} value={bed} />)}
           </datalist>
-          
+
           <div className="form-section">
             <h4>Patient Information</h4>
             <div className="form-group patient-search-container">
@@ -171,16 +273,17 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                 onChange={handleChange}
                 placeholder="Search or enter patient name"
                 required
+                disabled={isLoading}
                 className={errors.patientName ? "error" : ""}
                 autoComplete="off"
               />
               {errors.patientName && <span className="error-message">{errors.patientName}</span>}
-              
-              {showPatientSuggestions && filteredPatients.length > 0 && (
+
+              {showPatientSuggestions && filteredPatients.length > 0 && !isLoading && (
                 <div className="patient-suggestions">
                   {filteredPatients.map(patient => (
-                    <div 
-                      key={patient.id} 
+                    <div
+                      key={patient.id}
                       className="patient-suggestion-item"
                       onClick={() => selectPatient(patient)}
                     >
@@ -191,7 +294,7 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                 </div>
               )}
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Age *</label>
@@ -204,20 +307,26 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                   min="1"
                   max="120"
                   required
+                  disabled={isLoading}
                   className={errors.age ? "error" : ""}
                 />
                 {errors.age && <span className="error-message">{errors.age}</span>}
               </div>
               <div className="form-group">
                 <label>Gender</label>
-                <select name="gender" value={formData.gender} onChange={handleChange}>
+                <select 
+                  name="gender" 
+                  value={formData.gender} 
+                  onChange={handleChange}
+                  disabled={isLoading}
+                >
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group full-width">
                 <label>Address</label>
@@ -227,10 +336,11 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                   value={formData.address}
                   onChange={handleChange}
                   placeholder="Enter address"
+                  disabled={isLoading}
                 />
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Mobile Number *</label>
@@ -242,6 +352,7 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                   placeholder="10-digit number"
                   maxLength="10"
                   required
+                  disabled={isLoading}
                   className={errors.phone ? "error" : ""}
                 />
                 {errors.phone && <span className="error-message">{errors.phone}</span>}
@@ -254,10 +365,11 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                   value={formData.nameOfKin}
                   onChange={handleChange}
                   placeholder="Contact name"
+                  disabled={isLoading}
                 />
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Emergency Contact *</label>
@@ -269,6 +381,7 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                   placeholder="10-digit number"
                   maxLength="10"
                   required
+                  disabled={isLoading}
                   className={errors.kinContact ? "error" : ""}
                 />
                 {errors.kinContact && <span className="error-message">{errors.kinContact}</span>}
@@ -286,9 +399,10 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                   name="bedNo"
                   value={formData.bedNo}
                   onChange={handleChange}
-                  placeholder="Select bed number"
+                  placeholder="Select bed number (e.g., B1)"
                   list="bed-numbers"
                   required
+                  disabled={isLoading}
                   className={errors.bedNo ? "error" : ""}
                 />
                 {errors.bedNo && <span className="error-message">{errors.bedNo}</span>}
@@ -303,12 +417,13 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                   onChange={handleChange}
                   min={getMinDate()}
                   required
+                  disabled={isLoading}
                   className={errors.fromDate ? "error" : ""}
                 />
                 {errors.fromDate && <span className="error-message">{errors.fromDate}</span>}
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Expected Discharge Date</label>
@@ -318,6 +433,7 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                   value={formData.toDate}
                   onChange={handleChange}
                   min={formData.fromDate || getMinDate()}
+                  disabled={isLoading}
                   className={errors.toDate ? "error" : ""}
                 />
                 {errors.toDate && <span className="error-message">{errors.toDate}</span>}
@@ -330,32 +446,89 @@ function AdmitPatientForm({ onClose, addAdmission, searchPatients, getAvailableB
                   value={formData.admittingDoctor}
                   onChange={handleChange}
                   placeholder="Doctor name"
+                  disabled={isLoading}
                 />
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="form-group full-width">
-                <label>Symptoms (Optional)</label>
-                <div className="symptoms-checkbox-grid">
+            <div className="form-section">
+            <h4>Symptoms (Optional)</h4>
+            <div className="symptoms-container">
+              <div 
+                className="symptoms-select-box"
+                onClick={() => !isLoading && setSymptomsDropdownOpen(!symptomsDropdownOpen)}
+              >
+                <div className="selected-symptoms-preview">
+                  {formData.symptoms.length > 0 ? (
+                    <div className="selected-chips">
+                      {formData.symptoms.slice(0, 2).map((symptom) => (
+                        <span key={symptom} className="symptom-chip">
+                          {symptom}
+                          <button 
+                            type="button"
+                            className="chip-remove"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSymptomChange(symptom);
+                            }}
+                            disabled={isLoading}
+                          >×</button>
+                        </span>
+                      ))}
+                      {formData.symptoms.length > 2 && (
+                        <span className="more-count">
+                          +{formData.symptoms.length - 2} more
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="placeholder">Select symptoms</span>
+                  )}
+                </div>
+                <span className={`dropdown-arrow ${symptomsDropdownOpen ? 'open' : ''}`}>▼</span>
+              </div>
+              
+              {symptomsDropdownOpen && !isLoading && (
+                <div className="symptoms-dropdown-menu">
                   {cardiologySymptoms.map((symptom) => (
-                    <label key={symptom} className="symptoms-checkbox-item">
+                    <label key={symptom} className="symptom-option">
                       <input
                         type="checkbox"
                         checked={formData.symptoms.includes(symptom)}
                         onChange={() => handleSymptomChange(symptom)}
                       />
-                      <span>{symptom}</span>
+                      <span className="checkbox-label">{symptom}</span>
                     </label>
                   ))}
                 </div>
-              </div>
+              )}
             </div>
+          </div>
           </div>
 
           <div className="form-actions">
-            <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="confirm-btn">✓ Admit Patient</button>
+            <button 
+              type="button" 
+              onClick={handleCancel} 
+              className="cancel-btn" 
+              disabled={isLoading}
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className="confirm-btn"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  Admitting...
+                </>
+              ) : (
+                "✓ Admit Patient"
+              )}
+            </button>
           </div>
         </form>
       </div>

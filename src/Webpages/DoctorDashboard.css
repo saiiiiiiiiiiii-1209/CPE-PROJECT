@@ -165,7 +165,7 @@
 /* ==================== MAIN CONTENT ==================== */
 .main-content {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 270px;
   padding: 30px;
   background: var(--gray-100);
   min-height: 100vh;

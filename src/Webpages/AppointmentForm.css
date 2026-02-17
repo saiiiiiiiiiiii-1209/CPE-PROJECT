@@ -21,9 +21,10 @@
 
 .form-container {
   background: #FFFFFF;
-  border-radius: 24px;
+  border-radius: 100px;
   width: 100%;
   max-width: 750px;
+  padding: 0px;
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 25px 50px rgba(37, 99, 235, 0.2);
@@ -43,7 +44,7 @@
 }
 
 .form-container::-webkit-scrollbar {
-  width: 8px;
+  width: 0px;
 }
 
 .form-container::-webkit-scrollbar-track {
@@ -72,6 +73,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
+  border-radius: 10px;
 }
 
 .form-header h3 {
@@ -157,7 +159,7 @@ form {
 
 label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: px;
   color: #1E293B;
   font-size: 13px;
   font-weight: 700;

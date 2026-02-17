@@ -80,13 +80,28 @@ input[type="number"] {
   gap: 12px;
 }
 
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .hospital-logo {
-  font-size: 32px;
+  font-size: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
-.sidebar-header h2 {
-  margin: 0;
+.header-text h2 {
+  margin: 0 0 5px 0;
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -96,124 +111,299 @@ input[type="number"] {
   background-clip: text;
 }
 
+.user-role {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+/* Hide scrollbar but keep functionality */
+.sidebar-nav::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Menu Section */
+.menu-section {
+  margin-bottom: 20px;
+}
+
+.menu-section-label {
+  display: block;
+  padding: 20px 20px 10px;
+  margin: 0 12px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ==================== SIDEBAR BUTTON STYLES ==================== */
+/* Professional & Beautiful Button Design - Only for sidebar links */
+
+/* Base styles for all nav links in sidebar */
 .sidebar-menu {
   list-style: none;
-  padding: 20px 12px;
-  overflow-y: auto;
+  padding: 0;
+  margin: 0;
 }
 
 .sidebar-menu li {
-  padding: 14px 16px;
-  cursor: pointer;
-  border-radius: 10px;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: var(--transition);
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.sidebar-menu li:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--white);
-  transform: translateX(4px);
-}
-
-.sidebar-menu li.active {
-  background: var(--secondary);
-  color: var(--white);
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
-}
-
-.sidebar-menu1 {
+  margin: 4px 0;
   list-style: none;
-  padding: 0px 12px;
-  
-  overflow-y: auto;
+  animation: slideInLeft 0.3s ease forwards;
+  opacity: 0;
 }
 
-.sidebar-menu1 li {
-  padding: 14px 16px;
-  cursor: pointer;
-  border-radius: 10px;
-  margin-bottom: 6px;
+.sidebar-menu li:nth-child(1) { animation-delay: 0.1s; }
+.sidebar-menu li:nth-child(2) { animation-delay: 0.15s; }
+.sidebar-menu li:nth-child(3) { animation-delay: 0.2s; }
+.sidebar-menu li:nth-child(4) { animation-delay: 0.25s; }
+.sidebar-menu li:nth-child(5) { animation-delay: 0.3s; }
+.sidebar-menu li:nth-child(6) { animation-delay: 0.35s; }
+.sidebar-menu li:nth-child(7) { animation-delay: 0.4s; }
+
+.sidebar-menu li a {
   display: flex;
   align-items: center;
-  gap: 12px;
-  transition: var(--transition);
-  font-size: 14px;
-  font-weight: 500;
+  padding: 14px 20px;
+  margin: 6px 12px;
   color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  border-radius: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  border: 1px solid transparent;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.sidebar-menu1 li:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--white);
+/* Glass morphism effect on hover */
+.sidebar-menu li a:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateX(8px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Active button - Beautiful gradient */
+.sidebar-menu li a.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.5);
   transform: translateX(4px);
 }
 
-.sidebar-menu1 li.active {
-  background: var(--secondary);
-  color: var(--white);
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+/* Active indicator */
+.sidebar-menu li a.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.5) 100%);
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
-.sidebar-menu2 {
-  list-style: none;
-  padding: 2px 12px;
-  margin-top: 0px;
-  flex: 1;
-  overflow-y: auto;
+/* Pulse animation for active buttons */
+.sidebar-menu li a.active {
+  animation: pulse 2s infinite;
 }
 
-.sidebar-menu2 li {
-  padding: 14px 16px;
-  cursor: pointer;
-  border-radius: 10px;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: var(--transition);
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+  }
 }
 
-.sidebar-menu2 li:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--white);
-  transform: translateX(4px);
-}
-
-.sidebar-menu2 li.active {
-  background: var(--secondary);
-  color: var(--white);
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
-}
-
-.menu-icon {
-  font-size: 18px;
+/* Icon animation */
+.sidebar-menu li a .menu-icon {
+  font-size: 22px;
+  margin-right: 14px;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
   width: 24px;
   text-align: center;
 }
 
-.sidebar-footer {
-  padding: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+.sidebar-menu li a:hover .menu-icon {
+  transform: scale(1.1) rotate(5deg);
 }
 
-.sidebar-footer li {
-  background: rgba(198, 40, 40, 0.2);
-  color: #ff8a80;
+.sidebar-menu li a.active .menu-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 }
 
-.sidebar-footer li:hover {
-  background: var(--danger);
-  color: var(--white);
+/* Ripple effect on click */
+.sidebar-menu li a::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.sidebar-menu li a:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
+}
+
+/* Ripple animation */
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}
+
+/* Focus state */
+.sidebar-menu li a:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.menu-label {
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+/* ==================== LOGOUT BUTTON STYLES ==================== */
+.logout-container {
+  margin: 20px 12px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(238, 82, 83, 0.3);
+  letter-spacing: 0.5px;
+}
+
+/* Logout button hover effect */
+.logout-btn:hover {
+  background: linear-gradient(135deg, #ff8787 0%, #ff6b6b 100%);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 25px -5px rgba(238, 82, 83, 0.6);
+}
+
+.logout-btn:active {
+  transform: translateY(-1px);
+}
+
+/* Logout icon animation */
+.logout-btn .menu-icon {
+  font-size: 22px;
+  margin-right: 14px;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover .menu-icon {
+  transform: translateX(5px) rotate(10deg);
+}
+
+/* Shine effect on logout button */
+.logout-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.logout-btn:hover::before {
+  left: 100%;
+}
+
+.logout-btn:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* ==================== MAIN CONTENT ==================== */
@@ -1010,6 +1200,110 @@ input[type="number"] {
 }
 
 @media (max-width: 768px) {
+  .sidebar {
+    width: 80px;
+    transition: width 0.3s ease;
+  }
+
+  .sidebar:hover {
+    width: 280px;
+  }
+
+  .sidebar:hover .menu-label,
+  .sidebar:hover .header-text,
+  .sidebar:hover .menu-section-label {
+    display: block;
+  }
+
+  .hospital-logo {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+
+  .sidebar-menu li a {
+    padding: 12px;
+    margin: 4px 8px;
+    justify-content: center;
+  }
+  
+  .sidebar-menu li a .menu-label {
+    display: none;
+  }
+  
+  .sidebar-menu li a .menu-icon {
+    margin-right: 0;
+    font-size: 24px;
+  }
+
+  .sidebar:hover .sidebar-menu li a {
+    justify-content: flex-start;
+  }
+
+  .sidebar:hover .sidebar-menu li a .menu-icon {
+    margin-right: 14px;
+  }
+
+  .menu-section-label {
+    text-align: center;
+    padding: 15px 10px 5px;
+  }
+  
+  .logout-btn {
+    padding: 12px;
+    justify-content: center;
+  }
+  
+  .logout-btn .menu-label {
+    display: none;
+  }
+  
+  .logout-btn .menu-icon {
+    margin-right: 0;
+  }
+
+  .sidebar:hover .logout-btn {
+    justify-content: flex-start;
+    padding: 14px 20px;
+  }
+
+  .sidebar:hover .logout-btn .menu-label {
+    display: inline;
+  }
+
+  .sidebar:hover .logout-btn .menu-icon {
+    margin-right: 14px;
+  }
+
+  /* Tooltip for mobile */
+  .sidebar-menu li a:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-left: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: block;
+  }
+
+  .sidebar:hover .sidebar-menu li a:hover::after {
+    display: none;
+  }
+  
+  .main-content {
+    margin-left: 80px;
+    padding: 20px;
+  }
+
   .data-table {
     display: block;
     overflow-x: auto;
@@ -1041,404 +1335,46 @@ input[type="number"] {
   }
 }
 
-/* ==================== ANIMATIONS ==================== */
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+@media (max-width: 480px) {
+  .sidebar {
+    width: 0;
+    display: none;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
 }
 
-.confirm-booking:active {
-  animation: pulse 0.3s ease;
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .sidebar {
+    background: linear-gradient(180deg, #0a0f2e 0%, #05204a 100%);
+  }
+  
+  .main-content {
+    background: #0f172a;
+  }
 }
 
-/* ==================== ICON BUTTONS ==================== */
-.action-icon-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
-  transition: var(--transition-fast);
-  font-size: 16px;
-}
-
-.action-icon-btn:hover {
-  background: var(--gray-100);
-}
-
-.action-icon-btn.view {
-  color: var(--secondary);
-}
-
-.action-icon-btn.edit {
-  color: var(--warning);
-}
-
-.action-icon-btn.delete {
-  color: var(--danger);
-}
-
-/* ==================== EMPTY STATE ==================== */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--gray-500);
-}
-
-.empty-state-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-  opacity: 0.5;
-}
-
-.empty-state h3 {
-  margin: 0 0 8px 0;
-  color: var(--gray-700);
-}
-
-.empty-state p {
-  margin: 0;
-  font-size: 14px;
-}
-
-/* ==================== BOOKING FORM STYLES ==================== */
-.booking-form-container {
-  position: fixed;
+/* Optional: Add subtle pattern overlay */
+.sidebar::before {
+  content: '';
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  z-index: 1000;
-  padding: 40px 20px;
-  overflow-y: auto;
-  animation: fadeIn 0.3s ease;
+  background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-.booking-form-card {
-  background: var(--white);
-  border-radius: 20px;
-  width: 100%;
-  max-width: 800px;
-  box-shadow: var(--shadow-lg);
-  animation: slideDown 0.3s ease;
-  max-height: calc(100vh - 80px);
-  overflow-y: auto;
-}
-
-.form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 28px;
-  border-bottom: 2px solid var(--gray-100);
-  position: sticky;
-  top: 0;
-  background: var(--white);
-  z-index: 10;
-}
-
-.form-header h3 {
-  margin: 0;
-  font-size: 22px;
-  color: var(--gray-800);
-}
-
-.close-btn {
-  background: var(--gray-100);
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 24px;
-  cursor: pointer;
-  color: var(--gray-600);
-  transition: var(--transition-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  background: var(--gray-200);
-  color: var(--gray-800);
-}
-
-.booking-form-card form {
-  padding: 24px 28px;
-}
-
-.booking-form-card .form-section {
-  margin-bottom: 28px;
-  padding-bottom: 24px;
-  border-bottom: 2px dashed var(--gray-200);
-}
-
-.booking-form-card .form-section:last-of-type {
-  border-bottom: none;
-  margin-bottom: 20px;
-}
-
-.booking-form-card .form-section h4 {
-  margin: 0 0 20px 0;
-  color: var(--secondary);
-  font-size: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 700;
-}
-
-.booking-form-card .form-group {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.booking-form-card .form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--gray-600);
-  margin-bottom: 8px;
-}
-
-.booking-form-card .form-group input,
-.booking-form-card .form-group select {
-  padding: 14px 16px;
-  border: 2px solid var(--gray-200);
-  border-radius: 10px;
-  font-size: 14px;
-  transition: var(--transition-fast);
-  background: var(--white);
-}
-
-.booking-form-card .form-group input:focus,
-.booking-form-card .form-group select:focus {
-  outline: none;
-  border-color: var(--secondary);
-  box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
-}
-
-.form-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-  padding-top: 20px;
-  border-top: 2px solid var(--gray-100);
-  position: sticky;
-  bottom: 0;
-  background: var(--white);
-}
-
-.cancel-btn {
-  padding: 14px 28px;
-  background: var(--gray-200);
-  color: var(--gray-700);
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.cancel-btn:hover {
-  background: var(--gray-300);
-}
-
-.confirm-btn {
-  padding: 14px 32px;
-  background: linear-gradient(135deg, var(--success) 0%, #43a047 100%);
-  color: var(--white);
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.confirm-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
-}
-
-/* ==================== VIEW DETAILS POPUP STYLES ==================== */
-.view-details-popup {
-  background: var(--white);
-  border-radius: 20px;
-  width: 100%;
-  max-width: 700px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-  animation: slideUp 0.3s ease;
-}
-
-.view-details-popup .popup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 28px;
-  border-bottom: 2px solid var(--gray-100);
-  position: sticky;
-  top: 0;
-  background: var(--white);
-  z-index: 10;
-}
-
-.view-details-popup .popup-header h2 {
-  margin: 0;
-  font-size: 20px;
-  color: var(--gray-800);
-}
-
-.view-details-popup .popup-body {
-  padding: 24px 28px;
-}
-
-.status-section {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.status-badge.large {
-  padding: 10px 28px;
-  font-size: 14px;
-}
-
-.details-section {
-  margin-bottom: 24px;
-}
-
-.details-section:last-child {
-  margin-bottom: 0;
-}
-
-.details-section h4 {
-  margin: 0 0 16px 0;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--gray-100);
-  color: var(--secondary);
-  font-size: 15px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 700;
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.detail-item .detail-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--gray-500);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.detail-item .detail-value {
-  font-size: 15px;
-  color: var(--gray-800);
-  font-weight: 500;
-}
-
-.view-details-popup .popup-footer {
-  padding: 20px 28px;
-  border-top: 2px solid var(--gray-100);
-  display: flex;
-  justify-content: flex-end;
-  position: sticky;
-  bottom: 0;
-  background: var(--white);
-}
-
-/* ==================== RESPONSIVE STYLES ==================== */
-@media (max-width: 768px) {
-  .details-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .booking-form-card {
-    max-height: calc(100vh - 40px);
-    margin: 20px;
-  }
-  
-  .booking-form-card form {
-    padding: 20px;
-  }
-  
-  .view-details-popup {
-    max-height: calc(100vh - 40px);
-    margin: 20px;
-  }
-  
-  .view-details-popup .popup-body {
-    padding: 20px;
-  }
-}
-
-/* ==================== SYMPTOMS CHECKBOXES STYLES ==================== */
-.symptoms-group {
-  width: 100%;
-}
-
-.symptoms-checkboxes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px 0;
-}
-
-.symptom-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: var(--gray-100);
-  border-radius: 20px;
-  cursor: pointer;
-  transition: var(--transition-fast);
-  font-size: 13px;
-  border: 2px solid transparent;
-}
-
-.symptom-checkbox:hover {
-  background: var(--gray-200);
-}
-
-.symptom-checkbox input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: var(--secondary);
-}
-
-.symptom-checkbox input[type="checkbox"]:checked + span {
-  color: var(--secondary);
-  font-weight: 600;
-}
-
-.symptom-checkbox:has(input:checked) {
-  background: #e3f2fd;
-  border-color: var(--secondary);
-}
-
-/* ==================== SYMPTOMS CHECKBOX GRID (FOR CARDIOLOGY) ==================== */
+/* ==================== SYMPTOMS CHECKBOX GRID ==================== */
 .symptoms-checkbox-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -1487,11 +1423,10 @@ input[type="number"] {
   border-color: var(--secondary);
 }
 
-/* ==================== SYMPTOMS DROPDOWN WITH CHECKBOXES ==================== */
+/* ==================== SYMPTOMS DROPDOWN ==================== */
 .symptoms-dropdown {
   position: relative;
   width: 100%;
-  font-family: inherit;
 }
 
 .symptoms-dropdown-header {
@@ -1586,10 +1521,6 @@ input[type="number"] {
   flex: 1 0 100%;
 }
 
-.form-row .form-group.full-width {
-  width: 100%;
-}
-
 /* ==================== SYMPTOMS LIST IN TABLE ==================== */
 .symptoms-list {
   display: flex;
@@ -1606,18 +1537,6 @@ input[type="number"] {
   border-radius: 12px;
   font-size: 11px;
   font-weight: 500;
-}
-
-/* ==================== FORM WITH SPACING ==================== */
-.form-with-spacing {
-  margin-top: 30px;
-  margin-bottom: 30px;
-}
-
-/* ==================== LARGE STATUS BADGE ==================== */
-.status-badge.large {
-  font-size: 16px;
-  padding: 10px 24px;
 }
 
 /* ==================== STATUS DROPDOWN IN TABLE ==================== */
@@ -1657,33 +1576,7 @@ input[type="number"] {
   border-color: #2e7d32;
 }
 
-/* ==================== LARGER STATUS BADGE IN TABLE ==================== */
-.status-badge.in-table {
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  min-width: 100px;
-  display: inline-block;
-  text-align: center;
-}
-
-/* ==================== INCREASED SIZE FOR TYPE AND STATUS IN FORMS ==================== */
-.booking-form-card .form-group select[name="type"],
-.booking-form-card .form-group select[name="status"] {
-  padding: 16px 18px;
-  font-size: 16px;
-  font-weight: 600;
-  min-height: 56px;
-}
-
-.booking-form-card .form-group label[for="type"],
-.booking-form-card .form-group label[for="status"] {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--secondary);
-}
-
-/* ==================== SUMMARY CARD TYPE BADGE ==================== */
+/* ==================== TYPE BADGE ==================== */
 .type-badge {
   display: inline-block;
   padding: 10px 20px;
@@ -1693,219 +1586,3 @@ input[type="number"] {
   font-size: 14px;
   font-weight: 600;
 }
-/* ==================== RECEPTIONIST DASHBOARD CSS ==================== */
-
-.reception-container {
-  display: flex;
-  min-height: 100vh;
-  background-color: #f4f7fc;
-}
-
-/* ==================== SIDEBAR ==================== */
-.sidebar {
-  width: 280px;
-  background: linear-gradient(180deg, #0a2540 0%, #1a3550 100%);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  height: 100vh;
-  left: 0;
-  top: 0;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-  z-index: 1000;
-  overflow-y: auto;
-}
-
-/* Sidebar Header */
-.sidebar-header {
-  padding: 30px 20px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.hospital-logo {
-  font-size: 48px;
-  margin-bottom: 10px;
-}
-
-.sidebar-header h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: white;
-  letter-spacing: 0.5px;
-}
-
-.user-role {
-  margin: 5px 0 0;
-  font-size: 12px;
-  color: #8ba3b9;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* Sidebar Navigation */
-.sidebar-nav {
-  flex: 1;
-  padding: 20px 0;
-}
-
-.menu-section {
-  margin-bottom: 25px;
-}
-
-.menu-section-label {
-  display: block;
-  padding: 0 25px;
-  margin-bottom: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #8ba3b9;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
-
-.sidebar-menu,
-.sidebar-menu1,
-.sidebar-menu2 {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar-menu li,
-.sidebar-menu1 li,
-.sidebar-menu2 li {
-  display: flex;
-  align-items: center;
-  padding: 12px 25px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: rgba(255,255,255,0.8);
-  border-left: 4px solid transparent;
-}
-
-.sidebar-menu li:hover,
-.sidebar-menu1 li:hover,
-.sidebar-menu2 li:hover {
-  background: rgba(255,255,255,0.1);
-  color: white;
-  border-left-color: #00bcd4;
-}
-
-.sidebar-menu li.active,
-.sidebar-menu1 li.active,
-.sidebar-menu2 li.active {
-  background: rgba(0,188,212,0.15);
-  color: white;
-  border-left-color: #00bcd4;
-}
-
-.menu-icon {
-  margin-right: 12px;
-  font-size: 18px;
-  width: 24px;
-  text-align: center;
-}
-
-.menu-label {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-/* Sidebar Footer */
-.sidebar-footer {
-  padding: 20px 0;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  margin-top: auto;
-}
-
-.sidebar-footer li {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  padding: 12px 25px;
-  cursor: pointer;
-  color: rgba(255,255,255,0.8);
-  transition: all 0.3s ease;
-}
-
-.sidebar-footer li:hover {
-  background: rgba(255,255,255,0.1);
-  color: #ff6b6b;
-}
-
-/* ==================== MAIN CONTENT ==================== */
-.main-content {
-  flex: 1;
-  margin-left: 280px;
-  padding: 30px;
-  background-color: #f4f7fc;
-  min-height: 100vh;
-}
-
-/* ==================== SCROLLBAR STYLING ==================== */
-.sidebar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.2);
-  border-radius: 3px;
-}
-
-.sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.3);
-}
-
-/* ==================== RESPONSIVE DESIGN ==================== */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 80px;
-  }
-  
-  .sidebar-header h2,
-  .user-role,
-  .menu-label,
-  .menu-section-label {
-    display: none;
-  }
-  
-  .hospital-logo {
-    font-size: 32px;
-  }
-  
-  .sidebar-menu li,
-  .sidebar-menu1 li,
-  .sidebar-menu2 li,
-  .sidebar-footer li {
-    justify-content: center;
-    padding: 15px;
-  }
-  
-  .menu-icon {
-    margin-right: 0;
-    font-size: 20px;
-  }
-  
-  .main-content {
-    margin-left: 80px;
-  }
-}
-
-@media (max-width: 480px) {
-  .sidebar {
-    width: 0;
-    display: none;
-  }
-  
-  .main-content {
-    margin-left: 0;
-  }
-}
-

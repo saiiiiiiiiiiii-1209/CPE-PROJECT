@@ -59,13 +59,16 @@ export const AppointmentsProvider = ({ children }) => {
 
   const updateAppointment = (id, updatedData) => {
     setAppointments(prev => 
-      prev.map(apt => apt.id === id ? { ...apt, ...updatedData } : apt)
+      prev.map(apt => apt.id === id ? { ...updatedData,...apt  } : apt)
     );
   };
 
   const deleteAppointment = (id) => {
-    setAppointments(prev => prev.filter(apt => apt.id !== id));
-  };
+  setAppointments((prev) =>
+    prev.filter((appointment) => appointment.id !== id)
+  );
+};
+
 
   const getAppointmentStats = () => {
     const today = new Date().toISOString().split('T')[0];

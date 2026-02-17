@@ -2,12 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AppointmentForm from "./AppointmentForm";           // ✅ Direct import from same folder
 import PatientRegistrationForm from "./PatientRegistrationForm"; // ✅ Direct import from same folder
-import AdmitPatientForm from "./AdmitPatientForm";        // ✅ Direct import from same folder
+import AdmitPatientForm from "./AdmitPatientForm";
+import Patientlist from "./Patientlist";
+import Appointment from "./Appointment";
+import AdmitList from "./Admitlist";
+import Doctors from "./Doctors";          // ✅ Direct import from same folder
+import BedView from "./doctor/BedView";
 import "./DashboardHome.css";
+import { color } from "framer-motion";
+
 
 function DashboardHome() {
   const navigate = useNavigate();
-  
+
   // ==================== STATES ====================
   const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
@@ -27,10 +34,10 @@ function DashboardHome() {
   useEffect(() => {
     const savedAppointments = localStorage.getItem('appointments');
     if (savedAppointments) setAppointments(JSON.parse(savedAppointments));
-    
+
     const savedPatients = localStorage.getItem('patients');
     if (savedPatients) setPatients(JSON.parse(savedPatients));
-    
+
     const savedAdmissions = localStorage.getItem('admissions');
     if (savedAdmissions) setAdmissions(JSON.parse(savedAdmissions));
   }, []);
@@ -74,8 +81,8 @@ function DashboardHome() {
 
   // ==================== PATIENT FUNCTIONS ====================
   const addPatient = (patient) => {
-    const newPatient = { 
-      id: `PAT-${Date.now()}`, 
+    const newPatient = {
+      id: `PAT-${Date.now()}`,
       ...patient,
       registeredDate: new Date().toISOString().split('T')[0],
       registeredTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
@@ -94,7 +101,7 @@ function DashboardHome() {
 
   const searchPatients = (query) => {
     if (!query) return [];
-    return patients.filter(p => 
+    return patients.filter(p =>
       p.patientName?.toLowerCase().includes(query.toLowerCase()) ||
       p.phone?.includes(query) ||
       p.email?.toLowerCase().includes(query.toLowerCase())
@@ -107,8 +114,8 @@ function DashboardHome() {
 
   // ==================== ADMISSION FUNCTIONS ====================
   const addAdmission = (admission) => {
-    const newAdmission = { 
-      id: `ADM-${Date.now()}`, 
+    const newAdmission = {
+      id: `ADM-${Date.now()}`,
       ...admission,
       admissionDate: new Date().toISOString().split('T')[0],
       admissionTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
@@ -123,11 +130,11 @@ function DashboardHome() {
   };
 
   const dischargePatient = (id) => {
-    setAdmissions(prev => prev.map(adm => 
-      adm.id === id ? { 
-        ...adm, 
-        status: "Discharged", 
-        dischargeDate: new Date().toISOString().split('T')[0] 
+    setAdmissions(prev => prev.map(adm =>
+      adm.id === id ? {
+        ...adm,
+        status: "Discharged",
+        dischargeDate: new Date().toISOString().split('T')[0]
       } : adm
     ));
   };
@@ -158,7 +165,7 @@ function DashboardHome() {
     { label: "Today's Appointments", value: getTodaysAppointments().length, icon: "🗓️", color: "#388e3c" },
     { label: "Registered Patients", value: patients?.length || 0, icon: "👥", color: "#f57c00" },
     { label: "Admitted Patients", value: getAdmittedPatients().length, icon: "🛏️", color: "#d32f2f" },
-    { label: "Available Beds", value: getAvailableBeds().length, icon: "🛏️", color: "#2e7d32" }
+    
   ];
 
   // Recent activities
@@ -185,7 +192,7 @@ function DashboardHome() {
       {/* ==================== PAGE HEADER ==================== */}
       <div className="dashboard-header">
         <h1>Welcome to Reception Dashboard</h1>
-        <p className="subtitle">
+        <p className="subtitle" style={{color:"white"}}>
           {new Date().toLocaleDateString("en-US", {
             weekday: "long", year: "numeric", month: "long", day: "numeric",
           })}
@@ -221,29 +228,45 @@ function DashboardHome() {
             <span className="action-icon">🏥</span>
             <span>Admit Patient</span>
           </button>
-          <button className="action-btn" onClick={() => navigate("/receptionist-dashboard/doctors")}>
+          <button className="action-btn" onClick={() => navigate("/receptionist-dashboard/BedView")}>
             <span className="action-icon">👨‍⚕️</span>
-            <span>Doctors</span>
+            <span>Available Facilities</span>
           </button>
         </div>
         <div className="action-buttons">
-          <button className="action-btn" onClick={() => navigate("/receptionist-dashboard/appointments")}>
+          <button
+            className="action-btn"
+            onClick={() => navigate("/receptionist-dashboard/appointment")}
+          >
             <span className="action-icon">📋</span>
             <span>Appointment List</span>
           </button>
-          <button className="action-btn" onClick={() => navigate("/receptionist-dashboard/patients")}>
+
+          <button
+            className="action-btn"
+            onClick={() => navigate("/receptionist-dashboard/Patientlist")}
+          >
             <span className="action-icon">👥</span>
             <span>All Patient List</span>
           </button>
-          <button className="action-btn" onClick={() => navigate("/receptionist-dashboard/admit-patients")}>
+
+          <button
+            className="action-btn"
+            onClick={() => navigate("/receptionist-dashboard/admitlist")}
+          >
             <span className="action-icon">🛏️</span>
             <span>Admitted List</span>
           </button>
-          <button className="action-btn" onClick={() => navigate("/receptionist-dashboard/laboratory")}>
+
+          <button
+            className="action-btn"
+            onClick={() => navigate("/receptionist-dashboard/laboratory")}
+          >
             <span className="action-icon">🔬</span>
             <span>Laboratory</span>
           </button>
         </div>
+
       </div>
 
       {/* ==================== RECENT ACTIVITIES ==================== */}
@@ -268,7 +291,7 @@ function DashboardHome() {
 
       {/* ==================== FORMS ==================== */}
       {showPopup && popupType === "appointment" && (
-        <AppointmentForm 
+        <AppointmentForm
           onClose={closePopup}
           addAppointment={addAppointment}
           appointments={appointments}
@@ -276,7 +299,7 @@ function DashboardHome() {
       )}
 
       {showPopup && popupType === "patient" && (
-        <PatientRegistrationForm 
+        <PatientRegistrationForm
           onClose={closePopup}
           addPatient={addPatient}
           patients={patients}
