@@ -191,7 +191,7 @@ function DashboardHome() {
     <div className="dashboard-home">
       {/* ==================== PAGE HEADER ==================== */}
       <div className="dashboard-header">
-        <h1>Welcome to Reception Dashboard</h1>
+        <h1 style={{color:"white"}}>Welcome to Reception Dashboardd</h1>
         <p className="subtitle" style={{color:"white"}}>
           {new Date().toLocaleDateString("en-US", {
             weekday: "long", year: "numeric", month: "long", day: "numeric",
