@@ -32,7 +32,7 @@ function App() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        
+
         {/* PUBLIC ROUTES */}
         <Route path="/" element={<HomePages />} />
         <Route path="/signupform" element={<SignupForm />} />
@@ -43,6 +43,8 @@ function App() {
           <Route path="appointments" element={<DoctorAppointments />} />
           <Route path="patients" element={<DoctorPatients />} />
           <Route path="profile" element={<DoctorProfile />} />
+          <Route path="bedview" element={<BedView />} />
+          <Route path="admitlist" element={<Admitlist />} />
         </Route>
 
         {/* RECEPTIONIST DASHBOARD ROUTES */}
@@ -63,8 +65,8 @@ function App() {
           <Route path="doctors" element={<Doctors />} />
           <Route path="laboratory" element={<Laboratory />} />
           <Route path="services" element={<Services />} />
-           <Route path="Patientlist" element={<Patientlist />} />
-            <Route path="Admitlist" element={<Admitlist />} />
+          <Route path="Patientlist" element={<Patientlist />} />
+          <Route path="Admitlist" element={<Admitlist />} />
         </Route>
 
         {/* 404 REDIRECT */}

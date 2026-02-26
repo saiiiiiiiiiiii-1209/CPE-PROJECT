@@ -4,17 +4,25 @@
 :root {
   /* ==================== COLOR PALETTE ==================== */
   /* Primary colors for hospital theme */
-  --primary: #0a2540;        /* Dark blue - sidebar background */
-  --primary-light: #1b3b5f;  /* Lighter blue - sidebar hover */
-  --secondary: #1976d2;      /* Blue - primary buttons and accents */
-  --secondary-hover: #125aa0;/* Darker blue - button hover */
-  
+  --primary: #0a2540;
+  /* Dark blue - sidebar background */
+  --primary-light: #1b3b5f;
+  /* Lighter blue - sidebar hover */
+  --secondary: #1976d2;
+  /* Blue - primary buttons and accents */
+  --secondary-hover: #125aa0;
+  /* Darker blue - button hover */
+
   /* Status colors */
-  --success: #2e7d32;        /* Green - available, confirmed */
-  --warning: #f57c00;        /* Orange - pending */
-  --danger: #c62828;         /* Red - cancelled, logout */
-  --info: #0288d1;           /* Light blue - information */
-  
+  --success: #2e7d32;
+  /* Green - available, confirmed */
+  --warning: #f57c00;
+  /* Orange - pending */
+  --danger: #c62828;
+  /* Red - cancelled, logout */
+  --info: #0288d1;
+  /* Light blue - information */
+
   /* Neutral colors */
   --white: #ffffff;
   --gray-50: #f8fafc;
@@ -27,13 +35,13 @@
   --gray-700: #334155;
   --gray-800: #1e293b;
   --gray-900: #0f172a;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  
+
   /* Transitions */
   --transition: all 0.3s ease;
   --transition-fast: all 0.15s ease;
@@ -61,7 +69,7 @@ input[type="number"] {
 /* ==================== SIDEBAR ==================== */
 .sidebar {
   width: 260px;
-  background: linear-gradient(180deg, var(--primary) 0%, #061220 100%);
+  background: linear-gradient(180deg, #1f3c88 0%, #2d5a87 100%);
   color: var(--white);
   padding: 0;
   display: flex;
@@ -97,7 +105,7 @@ input[type="number"] {
   border-radius: 15px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .header-text h2 {
@@ -180,13 +188,33 @@ input[type="number"] {
   opacity: 0;
 }
 
-.sidebar-menu li:nth-child(1) { animation-delay: 0.1s; }
-.sidebar-menu li:nth-child(2) { animation-delay: 0.15s; }
-.sidebar-menu li:nth-child(3) { animation-delay: 0.2s; }
-.sidebar-menu li:nth-child(4) { animation-delay: 0.25s; }
-.sidebar-menu li:nth-child(5) { animation-delay: 0.3s; }
-.sidebar-menu li:nth-child(6) { animation-delay: 0.35s; }
-.sidebar-menu li:nth-child(7) { animation-delay: 0.4s; }
+.sidebar-menu li:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.sidebar-menu li:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.sidebar-menu li:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.sidebar-menu li:nth-child(4) {
+  animation-delay: 0.25s;
+}
+
+.sidebar-menu li:nth-child(5) {
+  animation-delay: 0.3s;
+}
+
+.sidebar-menu li:nth-child(6) {
+  animation-delay: 0.35s;
+}
+
+.sidebar-menu li:nth-child(7) {
+  animation-delay: 0.4s;
+}
 
 .sidebar-menu li a {
   display: flex;
@@ -248,9 +276,11 @@ input[type="number"] {
   0% {
     box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
   }
+
   70% {
     box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
   }
@@ -300,10 +330,12 @@ input[type="number"] {
     transform: scale(0, 0);
     opacity: 0.5;
   }
+
   20% {
     transform: scale(25, 25);
     opacity: 0.3;
   }
+
   100% {
     opacity: 0;
     transform: scale(40, 40);
@@ -400,6 +432,7 @@ input[type="number"] {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -421,8 +454,15 @@ input[type="number"] {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dashboard-header {
@@ -640,7 +680,7 @@ input[type="number"] {
   padding: 32px;
   width: 100%;
   max-width: 480px;
-  border-radius: 20px;
+  border-radius: 4px;
   box-shadow: var(--shadow-lg);
   animation: slideUp 0.3s ease;
 }
@@ -653,8 +693,15 @@ input[type="number"] {
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .popup-card h2 {
@@ -682,7 +729,7 @@ input[type="number"] {
   width: 100%;
   padding: 14px 16px;
   border: 2px solid var(--gray-200);
-  border-radius: 10px;
+  border-radius: 4px;
   font-size: 14px;
   transition: var(--transition-fast);
   box-sizing: border-box;
@@ -703,7 +750,7 @@ input[type="number"] {
   padding: 14px 16px;
   margin: 8px 0 16px 0;
   border: 2px solid var(--gray-200);
-  border-radius: 10px;
+  border-radius: 4px;
   font-size: 14px;
   transition: var(--transition-fast);
   box-sizing: border-box;
@@ -843,7 +890,7 @@ input[type="number"] {
 .form-container {
   background: var(--white);
   padding: 28px;
-  border-radius: 16px;
+  border-radius: 4px;
   margin-bottom: 30px;
   box-shadow: var(--shadow);
   border: 1px solid var(--gray-200);
@@ -851,8 +898,15 @@ input[type="number"] {
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .form-container h3 {
@@ -873,7 +927,7 @@ input[type="number"] {
   flex: 1;
   padding: 14px 16px;
   border: 2px solid var(--gray-200);
-  border-radius: 10px;
+  border-radius: 4px;
   font-size: 14px;
   transition: var(--transition-fast);
   box-sizing: border-box;
@@ -892,7 +946,7 @@ input[type="number"] {
   background: linear-gradient(135deg, var(--secondary) 0%, #42a5f5 100%);
   color: var(--white);
   border: none;
-  border-radius: 10px;
+  border-radius: 4px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -1182,18 +1236,18 @@ input[type="number"] {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .form-row input,
   .form-row select,
   .form-row textarea {
     width: 100%;
   }
-  
+
   .popup-card {
     max-width: 90%;
     margin: 20px;
   }
-  
+
   .edit-popup {
     max-width: 90%;
   }
@@ -1226,11 +1280,11 @@ input[type="number"] {
     margin: 4px 8px;
     justify-content: center;
   }
-  
+
   .sidebar-menu li a .menu-label {
     display: none;
   }
-  
+
   .sidebar-menu li a .menu-icon {
     margin-right: 0;
     font-size: 24px;
@@ -1248,16 +1302,16 @@ input[type="number"] {
     text-align: center;
     padding: 15px 10px 5px;
   }
-  
+
   .logout-btn {
     padding: 12px;
     justify-content: center;
   }
-  
+
   .logout-btn .menu-label {
     display: none;
   }
-  
+
   .logout-btn .menu-icon {
     margin-right: 0;
   }
@@ -1298,7 +1352,7 @@ input[type="number"] {
   .sidebar:hover .sidebar-menu li a:hover::after {
     display: none;
   }
-  
+
   .main-content {
     margin-left: 80px;
     padding: 20px;
@@ -1309,26 +1363,26 @@ input[type="number"] {
     overflow-x: auto;
     white-space: nowrap;
   }
-  
+
   .page-header {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
   }
-  
+
   .page-header h1 {
     font-size: 24px;
   }
-  
+
   .summary-stats {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .detail-row {
     flex-direction: column;
     gap: 4px;
   }
-  
+
   .detail-label {
     min-width: auto;
     font-size: 12px;
@@ -1340,7 +1394,7 @@ input[type="number"] {
     width: 0;
     display: none;
   }
-  
+
   .main-content {
     margin-left: 0;
     padding: 15px;
@@ -1356,7 +1410,7 @@ input[type="number"] {
   .sidebar {
     background: linear-gradient(180deg, #0a0f2e 0%, #05204a 100%);
   }
-  
+
   .main-content {
     background: #0f172a;
   }
@@ -1413,7 +1467,7 @@ input[type="number"] {
   margin: 0;
 }
 
-.symptom-checkbox-label input[type="checkbox"]:checked + span {
+.symptom-checkbox-label input[type="checkbox"]:checked+span {
   color: var(--secondary);
   font-weight: 600;
 }
@@ -1507,7 +1561,7 @@ input[type="number"] {
   margin: 0;
 }
 
-.symptoms-checkbox-item input[type="checkbox"]:checked + span {
+.symptoms-checkbox-item input[type="checkbox"]:checked+span {
   color: #1565c0;
   font-weight: 500;
 }

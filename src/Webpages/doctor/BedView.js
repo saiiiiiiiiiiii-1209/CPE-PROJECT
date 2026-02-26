@@ -5,13 +5,44 @@ import "./BedView.css";
 const BedView = ({ totalBeds = 20 }) => {
   const navigate = useNavigate();
   const context = useOutletContext();
-  const { admissions } = context || { admissions: [] };
+  const contextAdmissions = context?.admissions || [];
   const [flippedBeds, setFlippedBeds] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [apiAdmissions, setApiAdmissions] = useState([]);
+
+  // Fetch admissions from backend API
+  useEffect(() => {
+    const fetchAdmissions = async () => {
+      try {
+        const response = await fetch('http://localhost:8001/api/admitpatient');
+        const data = await response.json();
+        if (data.success) {
+          setApiAdmissions(data.data);
+          console.log("🛏️ BedView fetched API admissions:", data.data);
+        }
+      } catch (error) {
+        console.error("❌ BedView API fetch failed, using context only:", error);
+      }
+    };
+    fetchAdmissions();
+  }, []);
+
+  // Merge API admissions + context admissions (API takes priority, avoid duplicates)
+  const admissions = (() => {
+    const merged = [...apiAdmissions];
+    const apiIds = new Set(apiAdmissions.map(a => String(a.id)));
+    const apiBeds = new Set(apiAdmissions.filter(a => a.status === "Admitted").map(a => a.bedNo));
+    contextAdmissions.forEach(ca => {
+      if (!apiIds.has(String(ca.id)) && !apiBeds.has(ca.bedNo)) {
+        merged.push(ca);
+      }
+    });
+    return merged;
+  })();
 
   // Log admissions for debugging
   useEffect(() => {
-    console.log("🛏️ BedView received admissions:", admissions);
+    console.log("🛏️ BedView total admissions:", admissions.length, admissions);
   }, [admissions]);
 
   const bedNumbers = Array.from({ length: totalBeds }, (_, i) => `B${i + 1}`);
@@ -20,10 +51,10 @@ const BedView = ({ totalBeds = 20 }) => {
   const isActiveAdmission = (admission) => {
     // Only consider as active if status is "Admitted"
     if (admission.status !== "Admitted") return false;
-    
+
     // If no toDate, it's active
     if (!admission.toDate) return true;
-    
+
     // Check if discharge date is in future
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -46,7 +77,7 @@ const BedView = ({ totalBeds = 20 }) => {
     const admission = occupiedBeds[bedNo];
     const patientName = admission ? admission.patientName.toLowerCase() : "";
     return bedNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           patientName.includes(searchTerm.toLowerCase());
+      patientName.includes(searchTerm.toLowerCase());
   });
 
   const availableCount = bedNumbers.filter(bed => !occupiedBeds[bed]).length;
@@ -81,7 +112,7 @@ const BedView = ({ totalBeds = 20 }) => {
               <span>Occupied: {occupiedCount}</span>
             </div>
           </div>
-          <button 
+          <button
             className="back-to-dashboard-btn"
             onClick={handleBackToDashboard}
             style={{
@@ -170,7 +201,7 @@ const BedView = ({ totalBeds = 20 }) => {
                   ) : (
                     <div className="available-message">
                       <i className="fas fa-check-circle" style={{ fontSize: '24px', color: '#2e7d32', marginBottom: '10px' }}></i>
-                      <p>✨ Available for admission</p>
+                      <p>✨ Available for admit patient</p>
                     </div>
                   )}
                 </div>
