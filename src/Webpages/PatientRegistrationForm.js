@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import emailjs from '@emailjs/browser';
 import "./PatientRegistrationForm.css";
 
 function PatientRegistrationForm({ onClose, addPatient, patients }) {
@@ -134,6 +133,7 @@ function PatientRegistrationForm({ onClose, addPatient, patients }) {
     setIsLoading(true);
     
     try {
+      // Check for duplicate in localStorage first (for existing patients)
       const isDuplicate = patients?.some(p => 
         p.phone === formData.phone || p.email === formData.email
       );
@@ -156,10 +156,25 @@ function PatientRegistrationForm({ onClose, addPatient, patients }) {
         status: "Active"
       };
       
-      // Add patient to local state
-      addPatient(patientData);
-      
-      
+      // Send to backend
+      const response = await fetch('http://localhost:8001/api/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(patientData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Add patient to local state
+        addPatient(data.data);
+        alert(`✅ Patient ${formData.patientName} registered successfully!`);
+        onClose();
+      } else {
+        alert(`❌ Error: ${data.message}`);
+      }
     } catch (error) {
       console.error("❌ Error:", error);
       alert("❌ Failed to register patient. Please try again.");
@@ -177,6 +192,7 @@ function PatientRegistrationForm({ onClose, addPatient, patients }) {
         </div>
         
         <form onSubmit={handleSubmit}>
+          {/* Rest of your form JSX remains exactly the same */}
           <div className="form-section">
             <h4>Personal Information</h4>
             <div className="form-row">

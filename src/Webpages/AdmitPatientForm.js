@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdmitPatientForm.css";
-import AppointmentForm from "./AppointmentForm";
 
 function AdmitPatientForm() {
   const navigate = useNavigate();
@@ -29,41 +28,38 @@ function AdmitPatientForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [symptomsDropdownOpen, setSymptomsDropdownOpen] = useState(false);
 
-  // Load existing admissions from localStorage
+  // Load existing admissions from API
   const [existingAdmissions, setExistingAdmissions] = useState([]);
 
-  // Get available beds function
-  const getAvailableBeds = () => {
-    const allBeds = [
-      "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10",
-      "B11", "B12", "B13", "B14", "B15", "B16", "B17", "B18", "B19", "B20"
-    ];
-    const occupiedBeds = existingAdmissions
-      .filter(adm => adm.status === "Admitted")
-      .map(adm => adm.bedNo);
-    return allBeds.filter(bed => !occupiedBeds.includes(bed));
+  // Fetch available beds from backend
+  const fetchAvailableBeds = async () => {
+    try {
+      const response = await fetch('http://localhost:8001/api/availablebeds');
+      const data = await response.json();
+      if (data.success) {
+        setAvailableBedsList(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching available beds:', error);
+    }
   };
 
-  // Search patients function
-  const searchPatients = (query) => {
-    const savedPatients = localStorage.getItem('patients');
-    if (!savedPatients) return [];
-    const patients = JSON.parse(savedPatients);
-    return patients.filter(p =>
-      p.patientName?.toLowerCase().includes(query.toLowerCase()) ||
-      p.phone?.includes(query)
-    );
+  // Fetch existing admissions
+  const fetchAdmissions = async () => {
+    try {
+      const response = await fetch('http://localhost:8001/api/admitpatient');
+      const data = await response.json();
+      if (data.success) {
+        setExistingAdmissions(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching admissions:', error);
+    }
   };
 
   useEffect(() => {
-    // Load existing admissions
-    const savedAdmissions = localStorage.getItem('admissions');
-    if (savedAdmissions) {
-      setExistingAdmissions(JSON.parse(savedAdmissions));
-    }
-
-    // Update available beds
-    setAvailableBedsList(getAvailableBeds());
+    fetchAdmissions();
+    fetchAvailableBeds();
   }, []);
 
   const cardiologySymptoms = [
@@ -181,6 +177,17 @@ function AdmitPatientForm() {
     }));
   };
 
+  // Search patients function (still using localStorage for existing patients)
+  const searchPatients = (query) => {
+    const savedPatients = localStorage.getItem('patients');
+    if (!savedPatients) return [];
+    const patients = JSON.parse(savedPatients);
+    return patients.filter(p =>
+      p.patientName?.toLowerCase().includes(query.toLowerCase()) ||
+      p.phone?.includes(query)
+    );
+  };
+
   const selectPatient = (patient) => {
     setFormData(prev => ({
       ...prev,
@@ -196,7 +203,7 @@ function AdmitPatientForm() {
     setShowPatientSuggestions(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -220,25 +227,33 @@ function AdmitPatientForm() {
       status: "Admitted"
     };
 
-    // Get existing admissions
-    const existingAdmissions = JSON.parse(localStorage.getItem('admissions') || '[]');
-    
-    // Add new admission
-    const updatedAdmissions = [...existingAdmissions, submissionData];
-    
-    // Save to localStorage
-    localStorage.setItem('admissions', JSON.stringify(updatedAdmissions));
-    
-    alert(`✅ Patient ${formData.patientName} admitted to Bed ${formattedBed}`);
-    
-    setIsLoading(false);
-    
-    // Navigate to admit list
-    navigate("/receptionist-dashboard/admitlist");
+    try {
+      // Send to backend
+      const response = await fetch('http://localhost:8001/api/admitpatient', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(`✅ Patient ${formData.patientName} admitted to Bed ${formattedBed}`);
+        navigate("/receptionist-dashboard/admitlist");
+      } else {
+        alert(`❌ Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error('Error admitting patient:', error);
+      alert('❌ Failed to admit patient. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
-    // Direct navigation to admit list
     navigate("/receptionist-dashboard/admitlist");
   };
 

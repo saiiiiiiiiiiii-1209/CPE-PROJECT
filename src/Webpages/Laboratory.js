@@ -6,7 +6,7 @@ import "./Patientlist"
 function Laboratory() {
   // ==================== STATE ====================
   const [appointments, setAppointments] = useState([]);
-  const [registeredPatients, setRegisteredPatients] = useState([]); // ✅ Add this
+  const [registeredPatients, setRegisteredPatients] = useState([]);
   const [laboratoryPatients, setLaboratoryPatients] = useState({
     "2D-Echocardiogram": [],
     "Electrocardiogram": [],
@@ -25,43 +25,82 @@ function Laboratory() {
     male: 0,
     female: 0
   });
+  const [loading, setLoading] = useState(false);
 
-  // ==================== LOAD DATA ====================
+  // ==================== HELPER FUNCTIONS FOR SYMPTOMS ====================
+  const formatSymptoms = (symptoms) => {
+    if (!symptoms) return 'No symptoms';
+    
+    if (Array.isArray(symptoms)) {
+      const text = symptoms.join(', ');
+      return text.length > 30 ? text.substring(0, 30) + '...' : text;
+    }
+    
+    if (typeof symptoms === 'string') {
+      return symptoms.length > 30 ? symptoms.substring(0, 30) + '...' : symptoms;
+    }
+    
+    return 'Symptoms not specified';
+  };
+
+  const formatSymptomsFull = (symptoms) => {
+    if (!symptoms) return 'No symptoms';
+    
+    if (Array.isArray(symptoms)) {
+      return symptoms.join(', ');
+    }
+    
+    if (typeof symptoms === 'string') {
+      return symptoms;
+    }
+    
+    return 'Symptoms not specified';
+  };
+
+  // ==================== LOAD DATA FROM MONGODB ====================
   useEffect(() => {
-    loadTodaysAppointments();
-    loadLaboratoryData();
-    loadRegisteredPatients(); // ✅ Load registered patients
+    fetchLaboratoryData();
+    loadLocalData();
   }, []);
 
-  const loadRegisteredPatients = () => {
-    const saved = localStorage.getItem('patients');
-    if (saved) {
-      setRegisteredPatients(JSON.parse(saved));
+  const fetchLaboratoryData = async () => {
+    try {
+      setLoading(true);
+      console.log("📥 Fetching laboratory data from MongoDB...");
+      const response = await fetch('http://localhost:8001/api/laboratory');
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log("✅ Laboratory data fetched:", data);
+        setLaboratoryPatients(data.groupedByTest);
+        setStats(data.stats);
+      } else {
+        console.error("❌ Failed to fetch lab data:", data.message);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching lab data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const loadTodaysAppointments = () => {
+  const loadLocalData = () => {
+    // Load registered patients from localStorage as backup
+    const savedPatients = localStorage.getItem('patients');
+    if (savedPatients) {
+      setRegisteredPatients(JSON.parse(savedPatients));
+    }
+
+    // Load today's appointments from localStorage
     const today = new Date().toISOString().split('T')[0];
     const allAppointments = JSON.parse(localStorage.getItem('appointments') || '[]');
-
-    const labPatients = JSON.parse(localStorage.getItem('laboratoryPatients') || '{"2D-Echocardiogram":[],"Electrocardiogram":[],"Treadmill Test":[]}');
-    const allLabPatients = [...labPatients["2D-Echocardiogram"], ...labPatients["Electrocardiogram"], ...labPatients["Treadmill Test"]];
-
+    
     const todaysAppointments = allAppointments.filter(apt => {
       const aptDate = apt.date ? apt.date.split('T')[0] : apt.date;
-      if (aptDate !== today) return false;
-      const alreadyInLab = allLabPatients.some(lab => lab.id === apt.id);
-      return !alreadyInLab;
+      return aptDate === today;
     });
 
     setAppointments(todaysAppointments);
-  };
-
-  const loadLaboratoryData = () => {
-    const saved = JSON.parse(localStorage.getItem('laboratoryPatients') ||
-      '{"2D-Echocardiogram":[],"Electrocardiogram":[],"Treadmill Test":[]}');
-    setLaboratoryPatients(saved);
-    calculateStats(saved);
   };
 
   // ==================== CALCULATE STATS ====================
@@ -85,38 +124,93 @@ function Laboratory() {
     setShowTestPopup(true);
   };
 
-  // ==================== HANDLE TEST SELECTION ====================
-  const handleTestSelect = (testName) => {
+  // ==================== HANDLE TEST SELECTION (SAVE TO MONGODB) ====================
+  const handleTestSelect = async (testName) => {
     if (!selectedPatient) return;
 
-    const updatedLabPatients = { ...laboratoryPatients };
+    try {
+      setLoading(true);
+      console.log("🔵 Adding patient to test:", testName);
+      console.log("🔵 Patient data:", selectedPatient);
 
-    const labPatient = {
-      ...selectedPatient,
-      labDate: new Date().toISOString().split('T')[0],
-      labTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-      testName: testName,
-      status: "Pending",
-      testId: `LAB-${Date.now()}`
-    };
+      // Format symptoms properly
+      let symptomsString = '';
+      if (Array.isArray(selectedPatient.symptoms)) {
+        symptomsString = selectedPatient.symptoms.join(', ');
+      } else if (typeof selectedPatient.symptoms === 'string') {
+        symptomsString = selectedPatient.symptoms;
+      }
 
-    updatedLabPatients[testName].push(labPatient);
+      const labPatient = {
+        patientName: selectedPatient.patientName,
+        age: parseInt(selectedPatient.age),
+        gender: selectedPatient.gender,
+        phone: selectedPatient.phone,
+        email: selectedPatient.email || '',
+        bloodGroup: selectedPatient.bloodGroup || '',
+        symptoms: symptomsString,
+        testName: testName,
+        status: "Pending",
+        sourceId: selectedPatient.id || selectedPatient._id,
+        sourceType: selectedPatient.sourceType || 'appointment'
+      };
 
-    localStorage.setItem('laboratoryPatients', JSON.stringify(updatedLabPatients));
-    setLaboratoryPatients(updatedLabPatients);
-    setAppointments(prev => prev.filter(apt => apt.id !== selectedPatient.id));
-    calculateStats(updatedLabPatients);
+      console.log("📤 Sending to MongoDB:", labPatient);
 
-    setShowTestPopup(false);
-    setSelectedPatient(null);
+      const response = await fetch('http://localhost:8001/api/laboratory', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(labPatient)
+      });
 
-    alert(`✅ Patient moved to ${testName}`);
+      const data = await response.json();
+      console.log("📥 Response from MongoDB:", data);
+
+      if (data.success) {
+        // Refresh laboratory data from MongoDB
+        await fetchLaboratoryData();
+        
+        // Remove from appointments if it was an appointment
+        if (selectedPatient.sourceType === 'appointment' || !selectedPatient.sourceType) {
+          setAppointments(prev => prev.filter(apt => apt.id !== selectedPatient.id));
+        }
+
+        alert(`✅ Patient added to ${testName} successfully!`);
+        setShowTestPopup(false);
+        setSelectedPatient(null);
+      } else {
+        alert(`❌ Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("🔴 Error adding to laboratory:", error);
+      alert('Failed to add patient to laboratory');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ==================== HANDLE TEST BUTTON CLICK ====================
-  const handleTestButtonClick = (testName) => {
+  // ==================== HANDLE TEST BUTTON CLICK (SHOW FOLDER) ====================
+  const handleTestButtonClick = async (testName) => {
     setSelectedTestForList(testName);
     setShowPatientListPopup(true);
+    
+    // Fetch latest data for this test from MongoDB
+    try {
+      const response = await fetch(`http://localhost:8001/api/laboratory/test/${testName}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log(`✅ ${testName} patients:`, data.data);
+        setLaboratoryPatients(prev => ({
+          ...prev,
+          [testName]: data.data
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching test patients:', error);
+    }
   };
 
   // ==================== HANDLE PATIENT CARD CLICK (SHOW REPORT) ====================
@@ -241,6 +335,15 @@ function Laboratory() {
     }
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div className="loading-spinner"></div>
+        <p>Loading laboratory data...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="laboratory-page">
       {/* ==================== PAGE HEADER ==================== */}
@@ -281,9 +384,9 @@ function Laboratory() {
         </div>
       </div>
 
-      {/* ==================== LAB TEST BUTTONS ==================== */}
+      {/* ==================== THREE TEST FOLDERS ==================== */}
       <div className="lab-tests-section">
-        <h2>Laboratory Tests</h2>
+        <h2>📁 Laboratory Test Folders</h2>
         <div className="test-buttons-row">
           {tests.map((test) => (
             <div
@@ -298,9 +401,12 @@ function Laboratory() {
               <div className="test-info">
                 <h3>{test.name}</h3>
                 <p>{test.description}</p>
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+                  {laboratoryPatients[test.id]?.length || 0} patients
+                </div>
               </div>
               <div className="test-count" style={{ background: test.color }}>
-                {laboratoryPatients[test.id].length}
+                {laboratoryPatients[test.id]?.length || 0}
               </div>
             </div>
           ))}
@@ -338,13 +444,13 @@ function Laboratory() {
               <div
                 key={patient.id}
                 className="patient-item"
-                onClick={() => handlePatientClick(patient)}
+                onClick={() => handlePatientClick({...patient, sourceType: 'appointment'})}
               >
                 <div className="patient-info">
                   <strong>{patient.patientName}</strong>
                   <span>{patient.age}y / {patient.gender} • {patient.phone} • {patient.time}</span>
                 </div>
-                <button className="assign-btn">Assign</button>
+                <button className="assign-btn">Assign Test</button>
               </div>
             ))
           ) : (
@@ -366,11 +472,11 @@ function Laboratory() {
         {/* Patient List */}
         <div className="patient-list">
           {filteredRegisteredPatients.length > 0 ? (
-            filteredRegisteredPatients.slice(0, 5).map((patient) => ( // Show only 5 recent
+            filteredRegisteredPatients.slice(0, 5).map((patient) => (
               <div
                 key={patient.id}
                 className="patient-item"
-                onClick={() => handlePatientClick(patient)}
+                onClick={() => handlePatientClick({...patient, sourceType: 'patient'})}
               >
                 <div className="patient-info">
                   <strong>{patient.patientName}</strong>
@@ -406,6 +512,7 @@ function Laboratory() {
               <div className="patient-summary">
                 <p><strong>Age:</strong> {selectedPatient.age} | <strong>Gender:</strong> {selectedPatient.gender}</p>
                 <p><strong>Phone:</strong> {selectedPatient.phone} | <strong>Blood Group:</strong> {selectedPatient.bloodGroup || "-"}</p>
+                <p><strong>Symptoms:</strong> {formatSymptomsFull(selectedPatient.symptoms)}</p>
               </div>
 
               <div className="test-options">
@@ -429,24 +536,24 @@ function Laboratory() {
         </div>
       )}
 
-      {/* ==================== PATIENT LIST POPUP (2 COLUMN) ==================== */}
+      {/* ==================== PATIENT LIST POPUP (TEST FOLDER VIEW) ==================== */}
       {showPatientListPopup && selectedTestForList && (
         <div className="popup-overlay" onClick={() => setShowPatientListPopup(false)}>
           <div className="popup-card large-popup" onClick={(e) => e.stopPropagation()}>
             <div className="popup-header" style={{ background: tests.find(t => t.id === selectedTestForList)?.gradient }}>
               <h3>
-                {tests.find(t => t.id === selectedTestForList)?.icon} {selectedTestForList}
-                <span className="header-count">({laboratoryPatients[selectedTestForList].length})</span>
+                {tests.find(t => t.id === selectedTestForList)?.icon} {selectedTestForList} Folder
+                <span className="header-count">({laboratoryPatients[selectedTestForList]?.length || 0} patients)</span>
               </h3>
               <button className="close-btn" onClick={() => setShowPatientListPopup(false)}>×</button>
             </div>
 
             <div className="popup-content">
-              {laboratoryPatients[selectedTestForList].length > 0 ? (
+              {laboratoryPatients[selectedTestForList]?.length > 0 ? (
                 <div className="patient-grid-2col">
                   {laboratoryPatients[selectedTestForList].map((patient, index) => (
                     <div
-                      key={patient.testId || index}
+                      key={patient._id || patient.testId || index}
                       className="patient-card-modern clickable"
                       onClick={() => handlePatientCardClick(patient)}
                     >
@@ -466,12 +573,12 @@ function Laboratory() {
                         </div>
                         <div className="info-row">
                           <span className="info-icon">⏰</span>
-                          <span className="info-text">{patient.labTime || patient.time}</span>
+                          <span className="info-text">{patient.testTime || patient.time || "-"}</span>
                         </div>
                         {patient.symptoms && (
                           <div className="info-row">
                             <span className="info-icon">🩺</span>
-                            <span className="info-text">{patient.symptoms.substring(0, 30)}...</span>
+                            <span className="info-text">{formatSymptoms(patient.symptoms)}</span>
                           </div>
                         )}
                       </div>
@@ -484,7 +591,7 @@ function Laboratory() {
               ) : (
                 <div className="empty-state">
                   <span className="empty-icon">📭</span>
-                  <p>No patients in {selectedTestForList}</p>
+                  <p>No patients in {selectedTestForList} folder</p>
                 </div>
               )}
             </div>
@@ -492,7 +599,7 @@ function Laboratory() {
         </div>
       )}
 
-      {/* ==================== PATIENT REPORT POPUP - BEAUTIFUL DESIGN ==================== */}
+      {/* ==================== PATIENT REPORT POPUP ==================== */}
       {showReportPopup && selectedReportPatient && (
         <div className="popup-overlay" onClick={() => setShowReportPopup(false)}>
           <div className="popup-card report-popup" onClick={(e) => e.stopPropagation()}>
@@ -511,7 +618,7 @@ function Laboratory() {
               <div className="report-title">
                 <span className="title-icon">{getReportDetails(selectedTestType).icon}</span>
                 <h1>{getReportDetails(selectedTestType).title}</h1>
-                <span className="report-id">#{selectedReportPatient.testId?.slice(-6) || selectedReportPatient.id?.slice(-6) || "000000"}</span>
+                <span className="report-id">#{selectedReportPatient.testId?.slice(-6) || selectedReportPatient._id?.slice(-6) || "000000"}</span>
               </div>
             </div>
 
@@ -548,7 +655,7 @@ function Laboratory() {
                     <label>Test Date & Time</label>
                     <div className="detail-value">
                       <span className="value-icon">⏰</span>
-                      {formatDate(selectedReportPatient.labDate || selectedReportPatient.date)} at {selectedReportPatient.labTime || selectedReportPatient.time}
+                      {formatDate(selectedReportPatient.testDate || selectedReportPatient.date)} at {selectedReportPatient.testTime || selectedReportPatient.time}
                     </div>
                   </div>
                   <div className="detail-group">
@@ -563,12 +670,126 @@ function Laboratory() {
                       <label>Presenting Symptoms</label>
                       <div className="detail-value symptoms-box">
                         <span className="value-icon">🩺</span>
-                        {selectedReportPatient.symptoms}
+                        {formatSymptomsFull(selectedReportPatient.symptoms)}
                       </div>
                     </div>
                   )}
                 </div>
               </div>
+
+              {/* Test Results Section */}
+              {selectedTestType === "2D-Echocardiogram" && (
+                <div className="test-results-card">
+                  <div className="card-header">
+                    <span className="header-icon">📊</span>
+                    <h3>2D-ECHOCARDIOGRAM RESULTS</h3>
+                  </div>
+                  <div className="results-grid">
+                    <div className="result-item">
+                      <label>Ejection Fraction (EF)</label>
+                      <div className="result-value">{generateNormalValues().ejectionFraction}%</div>
+                    </div>
+                    <div className="result-item">
+                      <label>LVEDD</label>
+                      <div className="result-value">{generateNormalValues().lvedd} cm</div>
+                    </div>
+                    <div className="result-item">
+                      <label>LVESD</label>
+                      <div className="result-value">{generateNormalValues().lvesd} cm</div>
+                    </div>
+                    <div className="result-item">
+                      <label>Left Atrium (LA)</label>
+                      <div className="result-value">{generateNormalValues().la} cm</div>
+                    </div>
+                    <div className="result-item">
+                      <label>Aortic Root</label>
+                      <div className="result-value">{generateNormalValues().aorticRoot} cm</div>
+                    </div>
+                    <div className="result-item">
+                      <label>IVS</label>
+                      <div className="result-value">{generateNormalValues().ivs} cm</div>
+                    </div>
+                    <div className="result-item">
+                      <label>LVPW</label>
+                      <div className="result-value">{generateNormalValues().lvpw} cm</div>
+                    </div>
+                    <div className="result-item">
+                      <label>Mitral E/A Ratio</label>
+                      <div className="result-value">{generateNormalValues().eARatio}</div>
+                    </div>
+                    <div className="result-item">
+                      <label>Tricuspid Regurgitation</label>
+                      <div className="result-value">{generateNormalValues().tricuspidRegurge}</div>
+                    </div>
+                    <div className="result-item">
+                      <label>Mitral Regurgitation</label>
+                      <div className="result-value">{generateNormalValues().mitralRegurge}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {selectedTestType === "Electrocardiogram" && (
+                <div className="test-results-card">
+                  <div className="card-header">
+                    <span className="header-icon">📈</span>
+                    <h3>ECG RESULTS</h3>
+                  </div>
+                  <div className="results-grid">
+                    <div className="result-item">
+                      <label>Heart Rate</label>
+                      <div className="result-value">{generateNormalValues().heartRate} bpm</div>
+                    </div>
+                    <div className="result-item">
+                      <label>QT Interval</label>
+                      <div className="result-value">{generateNormalValues().qtInterval} ms</div>
+                    </div>
+                    <div className="result-item">
+                      <label>PR Interval</label>
+                      <div className="result-value">{generateNormalValues().prInterval} ms</div>
+                    </div>
+                    <div className="result-item">
+                      <label>QRS Duration</label>
+                      <div className="result-value">{generateNormalValues().qrsDuration} ms</div>
+                    </div>
+                    <div className="result-item full-width">
+                      <label>Interpretation</label>
+                      <div className="result-value">Normal Sinus Rhythm</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {selectedTestType === "Treadmill Test" && (
+                <div className="test-results-card">
+                  <div className="card-header">
+                    <span className="header-icon">🏃</span>
+                    <h3>TMT RESULTS</h3>
+                  </div>
+                  <div className="results-grid">
+                    <div className="result-item">
+                      <label>Exercise Duration</label>
+                      <div className="result-value">{generateNormalValues().exerciseDuration} min</div>
+                    </div>
+                    <div className="result-item">
+                      <label>Max Heart Rate</label>
+                      <div className="result-value">{generateNormalValues().maxHeartRate} bpm</div>
+                    </div>
+                    <div className="result-item">
+                      <label>Blood Pressure</label>
+                      <div className="result-value">{generateNormalValues().bloodPressure} mmHg</div>
+                    </div>
+                    <div className="result-item">
+                      <label>METS</label>
+                      <div className="result-value">{generateNormalValues().metabolicEquivalents}</div>
+                    </div>
+                    <div className="result-item full-width">
+                      <label>Interpretation</label>
+                      <div className="result-value">Negative for Ischemia, Good Functional Capacity</div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Footer */}
               <div className="report-footer-modern">

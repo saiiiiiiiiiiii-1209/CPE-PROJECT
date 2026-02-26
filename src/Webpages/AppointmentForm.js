@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import emailjs from '@emailjs/browser';
+import axios from 'axios'; // ✅ IMPORTANT: Axios import karo
 import "./AppointmentForm.css";
 
 function AppointmentForm({ onClose, addAppointment, appointments }) {
@@ -11,13 +12,13 @@ function AppointmentForm({ onClose, addAppointment, appointments }) {
     age: "",
     gender: "",
     phone: "",
-    email: "", // Sirf email add kiya
+    email: "",
     symptoms: [],
     date: new Date().toISOString().split("T")[0],
     time: "",
     status: "Pending",
     type: "Cardiology",
-    doctor: "Dr. Pranjal Patil", // Changed to Dr. Pranjal Patil
+    doctor: "Dr. Pranjal Patil",
     notes: ""
   });
   
@@ -45,6 +46,7 @@ function AppointmentForm({ onClose, addAppointment, appointments }) {
     };
   };
 
+  // Validation Functions
   const validatePhone = (phone) => {
     if (!phone) return false;
     const cleaned = phone.replace(/\D/g, '');
@@ -85,7 +87,7 @@ function AppointmentForm({ onClose, addAppointment, appointments }) {
     if (!validatePhone(formData.phone)) 
       newErrors.phone = "Enter valid 10-digit number starting with 7,8,9";
     if (!validateEmail(formData.email)) 
-      newErrors.email = "Enter valid email address"; // Email validation
+      newErrors.email = "Enter valid email address";
     if (!validateDate(formData.date)) 
       newErrors.date = "Appointment date cannot be in the past";
     if (!formData.time) 
@@ -128,24 +130,19 @@ function AppointmentForm({ onClose, addAppointment, appointments }) {
   };
 
   // Email sending function
-  const sendEmailConfirmation = async (appointmentData, appointmentId) => {
+  const sendEmailConfirmation = async (appointmentData) => {
     try {
       const serviceId = 'service_nmfirtr';
       const templateId = 'template_dprtbk4';
       const publicKey = 'IdqomYdCZMyAOoCnB';
 
-      // Format date and time properly
       const today = new Date();
       const registrationDate = today.toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+        day: '2-digit', month: '2-digit', year: 'numeric'
       });
       
       const registrationTime = today.toLocaleTimeString('en-IN', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
+        hour: '2-digit', minute: '2-digit', hour12: true
       });
 
       const templateParams = {
@@ -158,22 +155,13 @@ function AppointmentForm({ onClose, addAppointment, appointments }) {
         patient_phone: formData.phone,
         appointment_date: formData.date,
         appointment_time: formData.time,
-        doctor_name: "Dr. Pranjal Patil", // Updated doctor name
+        doctor_name: "Dr. Pranjal Patil",
         clinic_name: 'Medi Care Hospital',
         clinic_phone: '+91 9876543210',
         clinic_email: 'appointments@medicare.com'
       };
 
-      console.log("📧 Sending email with params:", templateParams);
-
-      const response = await emailjs.send(
-        serviceId,
-        templateId,
-        templateParams,
-        publicKey
-      );
-
-      console.log('✅ Email sent successfully:', response);
+      const response = await emailjs.send(serviceId, templateId, templateParams, publicKey);
       return true;
       
     } catch (error) {
@@ -182,6 +170,7 @@ function AppointmentForm({ onClose, addAppointment, appointments }) {
     }
   };
 
+  // ✅ FIXED: handleSubmit with Axios
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -189,49 +178,47 @@ function AppointmentForm({ onClose, addAppointment, appointments }) {
     setIsLoading(true);
     
     try {
-      // Check for duplicate appointment time
-      const isDuplicate = appointments?.some(apt => 
-        apt.date === formData.date && apt.time === formData.time
-      );
-      
-      if (isDuplicate) {
-        alert("❌ This time slot is already booked!");
-        setIsLoading(false);
-        return;
-      }
-      
-      const appointmentId = `APT-${Date.now()}`;
-      
+      // Prepare data for backend
       const appointmentData = {
-        id: appointmentId,
-        patientName: formData.patientName,
+        patientName: formData.patientName.trim(),
         age: parseInt(formData.age),
         gender: formData.gender,
         phone: formData.phone,
-        email: formData.email, // Email included
+        email: formData.email,
         symptoms: formData.symptoms.join(", "),
         date: formData.date,
         time: formData.time,
         type: "Cardiology",
-        doctor: "Dr. Pranjal Patil", // Updated doctor name
+        doctor: "Dr. Pranjal Patil",
         status: "Pending",
         notes: formData.notes || "",
         bookingDate: getCurrentDateTime().date,
         bookingTime: getCurrentDateTime().time,
       };
 
-      console.log("📤 Saving appointment:", appointmentData);
+      console.log("📤 Sending to backend:", appointmentData);
 
-      // Add to local state
-      addAppointment(appointmentData);
+      // ✅ Send to backend using Axios
+      const response = await axios.post('http://localhost:8001/api/appointments', appointmentData, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+      });
       
+      console.log("✅ Backend response:", response.data);
+
+      // Add to local state (optional)
+      if (addAppointment) {
+        addAppointment(response.data.appointment);
+      }
+
       // Send email confirmation
-      const emailSent = await sendEmailConfirmation(appointmentData, appointmentId);
+      const emailSent = await sendEmailConfirmation(appointmentData);
       
       if (emailSent) {
-        alert(`✅ Appointment booked successfully! Confirmation email sent to ${formData.email}`);
+        alert(`✅ Appointment booked successfully! ID: ${response.data.appointment.appointmentId}\nConfirmation email sent to ${formData.email}`);
       } else {
-        alert(`✅ Appointment booked successfully! (Email could not be sent)`);
+        alert(`✅ Appointment booked successfully! ID: ${response.data.appointment.appointmentId}\n(Email could not be sent)`);
       }
       
       // Close the popup
@@ -239,7 +226,17 @@ function AppointmentForm({ onClose, addAppointment, appointments }) {
       
     } catch (error) {
       console.error("❌ Error:", error);
-      alert("❌ Failed to book appointment. Please try again.");
+      
+      if (error.response) {
+        // Server responded with error
+        alert(`❌ ${error.response.data.message || "Failed to book appointment"}`);
+      } else if (error.request) {
+        // Request made but no response
+        alert("❌ Cannot connect to server. Please check if backend is running on port 8000");
+      } else {
+        // Something else
+        alert("❌ Failed to book appointment. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -324,7 +321,7 @@ function AppointmentForm({ onClose, addAppointment, appointments }) {
               </div>
             </div>
 
-            {/* Email Field - Added */}
+            {/* Email Field */}
             <div className="form-row">
               <div className="form-group full-width">
                 <label>Email Address *</label>

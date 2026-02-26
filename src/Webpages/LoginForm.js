@@ -22,7 +22,7 @@ function LoginForm({ role, onClose, onSwitchToSignup }) {
 
     try {
       console.log("📤 Sending login request...");
-      const response = await fetch('http://localhost:8000/api/login', {
+      const response = await fetch('http://localhost:8001/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

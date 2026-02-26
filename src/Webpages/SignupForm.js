@@ -91,7 +91,7 @@ function SignupForm({ role, onClose, onSwitchToLogin }) {
         console.log("📤 Sending signup request...");
         console.log("Request Data:", formData);
         
-        const response = await fetch('http://localhost:8000/api/signup', {
+        const response = await fetch('http://localhost:8001/api/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
