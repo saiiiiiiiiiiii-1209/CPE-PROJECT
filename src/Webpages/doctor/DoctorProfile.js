@@ -1,13 +1,12 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 // ==================== DOCTOR PROFILE PAGE ====================
 // Uses the EXACT SAME CSS classes from ReceptionistDashboard.css
 // page-header, add-btn, popup-overlay, popup-card, popup-form-group, etc.
-// Added: Profile photo upload with preview
 
 function DoctorProfile() {
-    // ==================== STATE ====================
-    const [doctorInfo, setDoctorInfo] = useState({
+    // ==================== DEFAULT DATA ====================
+    const defaultDoctorInfo = {
         name: "Dr. Pranjal Patil",
         specialization: "Cardiology",
         department: "Cardiology",
@@ -18,15 +17,82 @@ function DoctorProfile() {
         licenseNumber: "MH123456789",
         qualifications: "MBBS, MD Cardiology",
         joinDate: "2016-03-15",
-        profilePhoto: null,
+    };
+
+    // ==================== STATE ====================
+    // Load saved profile from localStorage, or use defaults
+    const [doctorInfo, setDoctorInfo] = useState(() => {
+        try {
+            const saved = localStorage.getItem("doctorProfileInfo");
+            if (saved) return JSON.parse(saved);
+        } catch (e) {
+            console.error("Failed to load profile:", e);
+        }
+        return defaultDoctorInfo;
     });
 
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({ ...doctorInfo });
+
+    // ==================== PROFILE PHOTO STATE ====================
+    const [profilePhoto, setProfilePhoto] = useState(null);
     const [photoPreview, setPhotoPreview] = useState(null);
     const fileInputRef = useRef(null);
 
-    // ==================== HANDLERS ====================
+    // Load profile photo from localStorage on mount
+    useEffect(() => {
+        const savedPhoto = localStorage.getItem("doctorProfilePhoto");
+        if (savedPhoto) {
+            setProfilePhoto(savedPhoto);
+        }
+    }, []);
+
+    // ==================== PHOTO HANDLERS ====================
+    const handlePhotoClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+        if (!validTypes.includes(file.type)) {
+            alert("❌ Please select a valid image file (JPEG, PNG, GIF, or WebP).");
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert("❌ Image size must be less than 5MB.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            if (isEditing) {
+                setPhotoPreview(reader.result);
+            } else {
+                setProfilePhoto(reader.result);
+                localStorage.setItem("doctorProfilePhoto", reader.result);
+                alert("✅ Profile photo updated successfully!");
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleRemovePhoto = () => {
+        if (isEditing) {
+            setPhotoPreview("remove");
+        } else {
+            setProfilePhoto(null);
+            localStorage.removeItem("doctorProfilePhoto");
+            alert("✅ Profile photo removed.");
+        }
+    };
+
+    // ==================== FORM HANDLERS ====================
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -34,67 +100,56 @@ function DoctorProfile() {
         });
     };
 
-    const handlePhotoChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file type
-            if (!file.type.startsWith("image/")) {
-                alert("❌ Please select an image file (JPG, PNG, etc.)");
-                return;
-            }
-            // Validate file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert("❌ Image size must be less than 5MB");
-                return;
-            }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPhotoPreview(reader.result);
-                setFormData(prev => ({ ...prev, profilePhoto: reader.result }));
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleRemovePhoto = () => {
-        setPhotoPreview(null);
-        setFormData(prev => ({ ...prev, profilePhoto: null }));
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
-    };
-
     const handleSubmit = (e) => {
         e.preventDefault();
         setDoctorInfo(formData);
+
+        // Save profile info to localStorage
+        localStorage.setItem("doctorProfileInfo", JSON.stringify(formData));
+
+        // Save photo changes from edit mode
+        if (photoPreview === "remove") {
+            setProfilePhoto(null);
+            localStorage.removeItem("doctorProfilePhoto");
+        } else if (photoPreview) {
+            setProfilePhoto(photoPreview);
+            localStorage.setItem("doctorProfilePhoto", photoPreview);
+        }
+
+        setPhotoPreview(null);
         setIsEditing(false);
         alert("✅ Profile updated successfully!");
     };
 
     const handleCancel = () => {
         setFormData({ ...doctorInfo });
-        setPhotoPreview(doctorInfo.profilePhoto);
+        setPhotoPreview(null);
         setIsEditing(false);
     };
 
-    const handleEditClick = () => {
-        setFormData({ ...doctorInfo });
-        setPhotoPreview(doctorInfo.profilePhoto);
-        setIsEditing(true);
-    };
-
-    // Get the current profile photo to display
-    const currentPhoto = doctorInfo.profilePhoto;
+    // Get the currently displayed photo (preview in edit mode, saved otherwise)
+    const displayPhoto = isEditing
+        ? (photoPreview === "remove" ? null : (photoPreview || profilePhoto))
+        : profilePhoto;
 
     return (
         <div className="appointments-page">
+            {/* Hidden file input */}
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handlePhotoChange}
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                style={{ display: "none" }}
+            />
+
             {/* ==================== HEADER ==================== */}
             <div className="page-header">
                 <div>
                     <h1>👨‍⚕️ My Profile</h1>
                 </div>
                 {!isEditing && (
-                    <button className="add-btn" onClick={handleEditClick}>
+                    <button className="add-btn" onClick={() => setIsEditing(true)}>
                         ✏️ Edit Profile
                     </button>
                 )}
@@ -103,32 +158,66 @@ function DoctorProfile() {
             {/* ==================== PROFILE VIEW ==================== */}
             {!isEditing ? (
                 <>
-                    {/* Profile Header Banner */}
+                    {/* Profile Header Banner - Same style as dashboard-header */}
                     <div className="dashboard-header" style={{ marginBottom: "30px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
-                            {/* Profile Photo or Initials */}
-                            {currentPhoto ? (
-                                <img
-                                    src={currentPhoto}
-                                    alt="Profile"
+                            {/* ===== PROFILE PHOTO AVATAR ===== */}
+                            <div
+                                onClick={handlePhotoClick}
+                                title="Click to change profile photo"
+                                style={{
+                                    width: "90px",
+                                    height: "90px",
+                                    borderRadius: "50%",
+                                    background: displayPhoto
+                                        ? `url(${displayPhoto}) center/cover no-repeat`
+                                        : "linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1))",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "34px",
+                                    fontWeight: "700",
+                                    color: "white",
+                                    border: "3px solid rgba(255,255,255,0.4)",
+                                    cursor: "pointer",
+                                    position: "relative",
+                                    overflow: "hidden",
+                                    transition: "all 0.3s ease",
+                                    boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+                                    flexShrink: 0,
+                                }}
+                            >
+                                {/* Show initial if no photo */}
+                                {!displayPhoto && (
+                                    <span style={{ userSelect: "none" }}>
+                                        {doctorInfo.name.split(" ").slice(1, 2)[0]?.charAt(0) || "D"}
+                                    </span>
+                                )}
+                                {/* Camera overlay on hover */}
+                                <div
+                                    className="profile-photo-overlay"
                                     style={{
-                                        width: "80px", height: "80px", borderRadius: "50%",
-                                        objectFit: "cover",
-                                        border: "3px solid rgba(255,255,255,0.4)",
-                                        boxShadow: "0 4px 12px rgba(0,0,0,0.2)"
+                                        position: "absolute",
+                                        inset: 0,
+                                        background: "rgba(0,0,0,0.45)",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        opacity: 0,
+                                        transition: "opacity 0.25s ease",
+                                        borderRadius: "50%",
                                     }}
-                                />
-                            ) : (
-                                <div style={{
-                                    width: "80px", height: "80px", borderRadius: "50%",
-                                    background: "rgba(255,255,255,0.2)", display: "flex",
-                                    alignItems: "center", justifyContent: "center",
-                                    fontSize: "32px", fontWeight: "700", color: "white",
-                                    border: "3px solid rgba(255,255,255,0.3)"
-                                }}>
-                                    {doctorInfo.name.split(" ").slice(1, 2)[0]?.charAt(0) || "D"}
+                                    onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
+                                    onMouseLeave={(e) => (e.currentTarget.style.opacity = 0)}
+                                >
+                                    <span style={{ fontSize: "22px", marginBottom: "2px" }}>📷</span>
+                                    <span style={{ fontSize: "10px", fontWeight: "600", color: "white", letterSpacing: "0.5px" }}>
+                                        CHANGE
+                                    </span>
                                 </div>
-                            )}
+                            </div>
+
                             <div>
                                 <h1 style={{ color: "white", fontSize: "24px", margin: "0 0 4px" }}>{doctorInfo.name}</h1>
                                 <p style={{ color: "rgba(255,255,255,0.9)", margin: "0 0 4px", fontSize: "16px", fontWeight: "600" }}>
@@ -139,27 +228,59 @@ function DoctorProfile() {
                                 </p>
                             </div>
                         </div>
+
+                        {/* Remove photo button - shown only when photo exists */}
+                        {profilePhoto && (
+                            <button
+                                onClick={handleRemovePhoto}
+                                style={{
+                                    position: "absolute",
+                                    top: "16px",
+                                    right: "16px",
+                                    background: "rgba(255,255,255,0.15)",
+                                    border: "1px solid rgba(255,255,255,0.25)",
+                                    color: "rgba(255,255,255,0.9)",
+                                    padding: "6px 14px",
+                                    borderRadius: "8px",
+                                    cursor: "pointer",
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    backdropFilter: "blur(8px)",
+                                    transition: "all 0.2s ease",
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = "rgba(239,68,68,0.7)";
+                                    e.currentTarget.style.borderColor = "rgba(239,68,68,0.5)";
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = "rgba(255,255,255,0.15)";
+                                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)";
+                                }}
+                            >
+                                🗑️ Remove Photo
+                            </button>
+                        )}
                     </div>
 
-                    {/* Detail Sections */}
+                    {/* Detail Sections - Using same card styles */}
                     <div className="table-container" style={{ marginBottom: "24px" }}>
                         <div className="table-header">
                             <h3>📋 Personal Information</h3>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px", padding: "10px 0" }}>
-                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "4px", border: "1px solid rgba(37,99,235,0.06)" }}>
+                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid rgba(37,99,235,0.06)" }}>
                                 <p style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Full Name</p>
                                 <p style={{ fontSize: "16px", color: "#1e293b", fontWeight: "500", margin: "0" }}>{doctorInfo.name}</p>
                             </div>
-                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "4px", border: "1px solid rgba(37,99,235,0.06)" }}>
+                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid rgba(37,99,235,0.06)" }}>
                                 <p style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Phone</p>
                                 <p style={{ fontSize: "16px", color: "#1e293b", fontWeight: "500", margin: "0" }}>{doctorInfo.phone}</p>
                             </div>
-                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "4px", border: "1px solid rgba(37,99,235,0.06)" }}>
+                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid rgba(37,99,235,0.06)" }}>
                                 <p style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Email</p>
                                 <p style={{ fontSize: "16px", color: "#1e293b", fontWeight: "500", margin: "0" }}>{doctorInfo.email}</p>
                             </div>
-                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "4px", border: "1px solid rgba(37,99,235,0.06)" }}>
+                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid rgba(37,99,235,0.06)" }}>
                                 <p style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Address</p>
                                 <p style={{ fontSize: "16px", color: "#1e293b", fontWeight: "500", margin: "0" }}>{doctorInfo.address}</p>
                             </div>
@@ -171,27 +292,27 @@ function DoctorProfile() {
                             <h3>🏥 Professional Information</h3>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px", padding: "10px 0" }}>
-                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "4px", border: "1px solid rgba(37,99,235,0.06)" }}>
+                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid rgba(37,99,235,0.06)" }}>
                                 <p style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Specialization</p>
                                 <p style={{ fontSize: "16px", color: "#1e293b", fontWeight: "500", margin: "0" }}>{doctorInfo.specialization}</p>
                             </div>
-                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "4px", border: "1px solid rgba(37,99,235,0.06)" }}>
+                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid rgba(37,99,235,0.06)" }}>
                                 <p style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Department</p>
                                 <p style={{ fontSize: "16px", color: "#1e293b", fontWeight: "500", margin: "0" }}>{doctorInfo.department}</p>
                             </div>
-                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "4px", border: "1px solid rgba(37,99,235,0.06)" }}>
+                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid rgba(37,99,235,0.06)" }}>
                                 <p style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Experience</p>
                                 <p style={{ fontSize: "16px", color: "#1e293b", fontWeight: "500", margin: "0" }}>{doctorInfo.experience}</p>
                             </div>
-                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "4px", border: "1px solid rgba(37,99,235,0.06)" }}>
+                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid rgba(37,99,235,0.06)" }}>
                                 <p style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Join Date</p>
                                 <p style={{ fontSize: "16px", color: "#1e293b", fontWeight: "500", margin: "0" }}>{new Date(doctorInfo.joinDate).toLocaleDateString()}</p>
                             </div>
-                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "4px", border: "1px solid rgba(37,99,235,0.06)" }}>
+                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid rgba(37,99,235,0.06)" }}>
                                 <p style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>License Number</p>
                                 <p style={{ fontSize: "16px", color: "#1e293b", fontWeight: "500", margin: "0" }}>{doctorInfo.licenseNumber}</p>
                             </div>
-                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "4px", border: "1px solid rgba(37,99,235,0.06)" }}>
+                            <div style={{ padding: "12px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid rgba(37,99,235,0.06)" }}>
                                 <p style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Qualifications</p>
                                 <p style={{ fontSize: "16px", color: "#1e293b", fontWeight: "500", margin: "0" }}>{doctorInfo.qualifications}</p>
                             </div>
@@ -204,80 +325,129 @@ function DoctorProfile() {
                     <h2>✏️ Edit Profile</h2>
                     <form onSubmit={handleSubmit}>
 
-                        {/* ==================== PROFILE PHOTO SECTION ==================== */}
-                        <h3 style={{ margin: "0 0 16px", fontSize: "16px", color: "#475569", borderBottom: "2px solid #e2e8f0", paddingBottom: "8px" }}>📷 Profile Photo</h3>
+                        {/* ===== PROFILE PHOTO SECTION IN EDIT MODE ===== */}
+                        <h3 style={{ margin: "0 0 16px", fontSize: "16px", color: "#475569", borderBottom: "2px solid #e2e8f0", paddingBottom: "8px" }}>
+                            Profile Photo
+                        </h3>
                         <div style={{
-                            display: "flex", alignItems: "center", gap: "24px",
-                            marginBottom: "24px", padding: "20px",
-                            background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "4px"
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "24px",
+                            marginBottom: "28px",
+                            padding: "20px",
+                            background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
+                            borderRadius: "16px",
+                            border: "2px dashed rgba(37,99,235,0.2)",
                         }}>
-                            {/* Photo Preview */}
-                            <div style={{ position: "relative" }}>
-                                {photoPreview ? (
-                                    <img
-                                        src={photoPreview}
-                                        alt="Profile Preview"
-                                        style={{
-                                            width: "100px", height: "100px", borderRadius: "50%",
-                                            objectFit: "cover",
-                                            border: "3px solid #1976d2",
-                                            boxShadow: "0 4px 12px rgba(25,118,210,0.2)"
-                                        }}
-                                    />
-                                ) : (
-                                    <div style={{
-                                        width: "100px", height: "100px", borderRadius: "50%",
-                                        background: "linear-gradient(135deg, #1976d2, #42a5f5)",
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        fontSize: "36px", fontWeight: "700", color: "white",
-                                        border: "3px solid #e2e8f0",
-                                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-                                    }}>
-                                        {formData.name.split(" ").slice(1, 2)[0]?.charAt(0) || "D"}
-                                    </div>
+                            {/* Current / Preview Photo */}
+                            <div
+                                onClick={handlePhotoClick}
+                                style={{
+                                    width: "100px",
+                                    height: "100px",
+                                    borderRadius: "50%",
+                                    background: displayPhoto
+                                        ? `url(${displayPhoto}) center/cover no-repeat`
+                                        : "linear-gradient(135deg, #cbd5e1, #94a3b8)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "36px",
+                                    fontWeight: "700",
+                                    color: "white",
+                                    border: "4px solid white",
+                                    cursor: "pointer",
+                                    position: "relative",
+                                    overflow: "hidden",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                    flexShrink: 0,
+                                    transition: "all 0.3s ease",
+                                }}
+                            >
+                                {!displayPhoto && (
+                                    <span style={{ userSelect: "none" }}>
+                                        {doctorInfo.name.split(" ").slice(1, 2)[0]?.charAt(0) || "D"}
+                                    </span>
                                 )}
+                                {/* Hover overlay */}
+                                <div
+                                    style={{
+                                        position: "absolute",
+                                        inset: 0,
+                                        background: "rgba(0,0,0,0.5)",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        opacity: 0,
+                                        transition: "opacity 0.25s ease",
+                                        borderRadius: "50%",
+                                    }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
+                                    onMouseLeave={(e) => (e.currentTarget.style.opacity = 0)}
+                                >
+                                    <span style={{ fontSize: "24px" }}>📷</span>
+                                </div>
                             </div>
 
-                            {/* Upload Controls */}
-                            <div style={{ flex: 1 }}>
-                                <p style={{ margin: "0 0 8px", fontSize: "14px", fontWeight: "600", color: "#1e293b" }}>
-                                    Upload Profile Photo
+                            {/* Upload / Remove Buttons */}
+                            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                                <p style={{ margin: "0 0 4px", fontSize: "14px", fontWeight: "600", color: "#334155" }}>
+                                    Profile Photo
                                 </p>
-                                <p style={{ margin: "0 0 12px", fontSize: "12px", color: "#64748b" }}>
-                                    JPG, PNG or GIF. Max 5MB. Recommended: 200×200px
+                                <p style={{ margin: "0 0 8px", fontSize: "12px", color: "#64748b" }}>
+                                    JPG, PNG, GIF or WebP. Max 5MB.
                                 </p>
-                                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                                    {/* Hidden File Input */}
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={handlePhotoChange}
-                                        accept="image/*"
-                                        style={{ display: "none" }}
-                                    />
+                                <div style={{ display: "flex", gap: "10px" }}>
                                     <button
                                         type="button"
-                                        onClick={() => fileInputRef.current.click()}
+                                        onClick={handlePhotoClick}
                                         style={{
-                                            padding: "8px 20px",
-                                            background: "linear-gradient(135deg, #1976d2, #42a5f5)",
-                                            color: "white", border: "none", borderRadius: "4px",
-                                            fontSize: "13px", fontWeight: "600", cursor: "pointer",
-                                            transition: "all 0.3s ease"
+                                            padding: "8px 18px",
+                                            background: "linear-gradient(135deg, #2563eb, #3b82f6)",
+                                            color: "white",
+                                            border: "none",
+                                            borderRadius: "8px",
+                                            cursor: "pointer",
+                                            fontSize: "13px",
+                                            fontWeight: "600",
+                                            transition: "all 0.2s ease",
+                                            boxShadow: "0 2px 8px rgba(37,99,235,0.3)",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = "translateY(-1px)";
+                                            e.currentTarget.style.boxShadow = "0 4px 12px rgba(37,99,235,0.4)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = "translateY(0)";
+                                            e.currentTarget.style.boxShadow = "0 2px 8px rgba(37,99,235,0.3)";
                                         }}
                                     >
-                                        📁 Choose Photo
+                                        📤 Upload Photo
                                     </button>
-                                    {photoPreview && (
+
+                                    {(displayPhoto) && (
                                         <button
                                             type="button"
                                             onClick={handleRemovePhoto}
                                             style={{
-                                                padding: "8px 20px",
-                                                background: "#fee2e2", color: "#c62828",
-                                                border: "1px solid #fecaca", borderRadius: "4px",
-                                                fontSize: "13px", fontWeight: "600", cursor: "pointer",
-                                                transition: "all 0.3s ease"
+                                                padding: "8px 18px",
+                                                background: "white",
+                                                color: "#ef4444",
+                                                border: "2px solid #fecaca",
+                                                borderRadius: "8px",
+                                                cursor: "pointer",
+                                                fontSize: "13px",
+                                                fontWeight: "600",
+                                                transition: "all 0.2s ease",
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background = "#fef2f2";
+                                                e.currentTarget.style.borderColor = "#ef4444";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = "white";
+                                                e.currentTarget.style.borderColor = "#fecaca";
                                             }}
                                         >
                                             🗑️ Remove
@@ -287,7 +457,6 @@ function DoctorProfile() {
                             </div>
                         </div>
 
-                        {/* ==================== PERSONAL INFO ==================== */}
                         <h3 style={{ margin: "0 0 16px", fontSize: "16px", color: "#475569", borderBottom: "2px solid #e2e8f0", paddingBottom: "8px" }}>Personal Information</h3>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
                             <div className="popup-form-group">
@@ -308,7 +477,6 @@ function DoctorProfile() {
                             </div>
                         </div>
 
-                        {/* ==================== PROFESSIONAL INFO ==================== */}
                         <h3 style={{ margin: "0 0 16px", fontSize: "16px", color: "#475569", borderBottom: "2px solid #e2e8f0", paddingBottom: "8px" }}>Professional Information</h3>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
                             <div className="popup-form-group">

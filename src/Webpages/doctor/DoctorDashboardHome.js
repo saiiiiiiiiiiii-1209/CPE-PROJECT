@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../DashboardHome.css";
 
@@ -15,17 +15,71 @@ function DoctorDashboardHome() {
     const [patients, setPatients] = useState([]);
     const [admissions, setAdmissions] = useState([]);
 
-    // ==================== LOAD DATA ====================
-    useEffect(() => {
-        const savedAppointments = localStorage.getItem('appointments');
-        if (savedAppointments) setAppointments(JSON.parse(savedAppointments));
+    // ==================== LOAD DATA FROM LOCALSTORAGE ====================
+    const loadAllData = useCallback(() => {
+        try {
+            const savedAppointments = localStorage.getItem('appointments');
+            if (savedAppointments) {
+                setAppointments(JSON.parse(savedAppointments));
+            } else {
+                setAppointments([]);
+            }
+        } catch (e) {
+            console.error("Failed to load appointments:", e);
+        }
 
-        const savedPatients = localStorage.getItem('patients');
-        if (savedPatients) setPatients(JSON.parse(savedPatients));
+        try {
+            const savedPatients = localStorage.getItem('patients');
+            if (savedPatients) {
+                setPatients(JSON.parse(savedPatients));
+            } else {
+                setPatients([]);
+            }
+        } catch (e) {
+            console.error("Failed to load patients:", e);
+        }
 
-        const savedAdmissions = localStorage.getItem('admissions');
-        if (savedAdmissions) setAdmissions(JSON.parse(savedAdmissions));
+        try {
+            const savedAdmissions = localStorage.getItem('admissions');
+            if (savedAdmissions) {
+                setAdmissions(JSON.parse(savedAdmissions));
+            } else {
+                setAdmissions([]);
+            }
+        } catch (e) {
+            console.error("Failed to load admissions:", e);
+        }
     }, []);
+
+    // Load data on mount AND every time the component remounts (navigation)
+    useEffect(() => {
+        loadAllData();
+    }, [loadAllData]);
+
+    // Re-read data when the window gains focus (e.g., user switches tabs)
+    useEffect(() => {
+        const handleFocus = () => loadAllData();
+        window.addEventListener("focus", handleFocus);
+        return () => window.removeEventListener("focus", handleFocus);
+    }, [loadAllData]);
+
+    // Listen for storage events (changes from other tabs)
+    useEffect(() => {
+        const handleStorage = (e) => {
+            if (e.key === "appointments" || e.key === "patients" || e.key === "admissions") {
+                loadAllData();
+            }
+        };
+        window.addEventListener("storage", handleStorage);
+        return () => window.removeEventListener("storage", handleStorage);
+    }, [loadAllData]);
+
+    // Listen for a custom event so same-tab updates are picked up too
+    useEffect(() => {
+        const handleCustom = () => loadAllData();
+        window.addEventListener("appointmentsUpdated", handleCustom);
+        return () => window.removeEventListener("appointmentsUpdated", handleCustom);
+    }, [loadAllData]);
 
     // ==================== HELPER FUNCTIONS ====================
     const getTodaysAppointments = () => {
@@ -41,18 +95,24 @@ function DoctorDashboardHome() {
         return appointments.filter(apt => apt.status === "Completed");
     };
 
-    const getAdmittedPatients = () => {
-        return admissions.filter(adm => adm.status === "Admitted");
+    const getConfirmedAppointments = () => {
+        return appointments.filter(apt => apt.status === "Confirmed");
     };
 
     // ==================== STATISTICS ====================
     // Same pattern as DashboardHome.js stats array
+    // Each stat has a `filter` key used as a query param when clicked
     const stats = [
-        { label: "Today's Appointments", value: getTodaysAppointments().length, icon: "📅", color: "#1976d2" },
-        { label: "Total Appointments", value: appointments?.length || 0, icon: "🗓️", color: "#388e3c" },
-        { label: "Pending", value: getPendingAppointments().length, icon: "⏳", color: "#f57c00" },
-        { label: "Completed", value: getCompletedAppointments().length, icon: "✅", color: "#7b1fa2" },
+        { label: "Today's Appointments", value: getTodaysAppointments().length, icon: "📅", color: "#1976d2", filter: "today" },
+        { label: "Total Appointments", value: appointments?.length || 0, icon: "🗓️", color: "#388e3c", filter: "all" },
+        { label: "Pending", value: getPendingAppointments().length, icon: "⏳", color: "#f57c00", filter: "Pending" },
+        { label: "Completed", value: getCompletedAppointments().length, icon: "✅", color: "#7b1fa2", filter: "Completed" },
     ];
+
+    // Navigate to appointments with the selected filter
+    const handleStatClick = (filter) => {
+        navigate(`/doctor-dashboard/appointments?filter=${filter}`);
+    };
 
     // ==================== RECENT ACTIVITIES ====================
     // Same pattern as DashboardHome.js
@@ -88,10 +148,28 @@ function DoctorDashboardHome() {
             </div>
 
             {/* ==================== STATISTICS CARDS ==================== */}
-            {/* EXACT SAME as DashboardHome.js */}
+            {/* Clickable cards — navigate to appointments with filter */}
             <div className="stats-grid">
                 {stats.map((stat, index) => (
-                    <div key={index} className="stat-card" style={{ borderLeft: `4px solid ${stat.color}` }}>
+                    <div
+                        key={index}
+                        className="stat-card"
+                        onClick={() => handleStatClick(stat.filter)}
+                        style={{
+                            borderLeft: `4px solid ${stat.color}`,
+                            cursor: "pointer",
+                            transition: "all 0.3s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = "translateY(-6px) scale(1.02)";
+                            e.currentTarget.style.boxShadow = `0 12px 24px ${stat.color}30`;
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = "translateY(0) scale(1)";
+                            e.currentTarget.style.boxShadow = "";
+                        }}
+                        title={`Click to view ${stat.label.toLowerCase()}`}
+                    >
                         <div className="stat-icon">{stat.icon}</div>
                         <div className="stat-info">
                             <h3>{stat.value}</h3>

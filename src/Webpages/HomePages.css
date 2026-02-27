@@ -5,7 +5,8 @@
   font-family: 'Segoe UI', sans-serif;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   overflow-x: hidden;
   background: #f5f7fa;
@@ -26,7 +27,7 @@ html, body {
   justify-content: space-between;
   align-items: center;
   padding: 15px 6%;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -52,7 +53,7 @@ nav a {
 }
 
 nav a:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   color: #ffd166;
 }
 
@@ -66,21 +67,21 @@ nav a:hover {
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,180,216,0.4);
+  box-shadow: 0 4px 15px rgba(0, 180, 216, 0.4);
 }
 
 .login-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,180,216,0.5);
+  box-shadow: 0 8px 25px rgba(0, 180, 216, 0.5);
 }
 
 .login-btn.doctor {
   background: linear-gradient(135deg, #1f3c88, #2d5a87);
-  box-shadow: 0 4px 15px rgba(31,60,136,0.4);
+  box-shadow: 0 4px 15px rgba(31, 60, 136, 0.4);
 }
 
 .login-btn.doctor:hover {
-  box-shadow: 0 8px 25px rgba(31,60,136,0.5);
+  box-shadow: 0 8px 25px rgba(31, 60, 136, 0.5);
 }
 
 /* HERO + CAROUSEL */
@@ -128,13 +129,13 @@ nav a:hover {
   border: none;
   border-radius: 30px;
   cursor: pointer;
-  box-shadow: 0 8px 25px rgba(0,119,182,0.35);
+  box-shadow: 0 8px 25px rgba(0, 119, 182, 0.35);
   transition: all 0.3s ease;
 }
 
 .learn-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(0,119,182,0.45);
+  box-shadow: 0 12px 35px rgba(0, 119, 182, 0.45);
 }
 
 /* CAROUSEL RIGHT */
@@ -150,7 +151,7 @@ nav a:hover {
   width: 100%;
   border-radius: 25px;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
 }
 
 .carousel-inner {
@@ -189,14 +190,14 @@ nav a:hover {
   transform: translateY(-50%);
   width: 50px;
   height: 50px;
-  background: rgba(255,255,255,0.95);
+  background: rgba(255, 255, 255, 0.95);
   border: none;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   z-index: 10;
 }
@@ -213,7 +214,7 @@ nav a:hover {
 .carousel-control-next:hover {
   background: white;
   transform: translateY(-50%) scale(1.1);
-  box-shadow: 0 6px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
 }
 
 .carousel-control-prev-icon,
@@ -238,7 +239,7 @@ nav a:hover {
 .carousel-indicators button {
   width: 40px;
   height: 6px;
-  background: rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.4);
   border: none;
   border-radius: 3px;
   cursor: pointer;
@@ -304,7 +305,7 @@ nav a:hover {
   padding: 35px 30px;
   width: 400px;
   border-radius: 25px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
 }
 
 .popup h2 {
@@ -327,7 +328,7 @@ nav a:hover {
 .popup input:focus {
   outline: none;
   border-color: #00b4d8;
-  box-shadow: 0 0 0 3px rgba(0,180,216,0.1);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
 }
 
 .popup-actions {
@@ -351,7 +352,7 @@ nav a:hover {
 
 .login:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(0,119,182,0.4);
+  box-shadow: 0 5px 20px rgba(0, 119, 182, 0.4);
 }
 
 .cancel {
@@ -422,7 +423,7 @@ nav a:hover {
 .form-row input:focus {
   outline: none;
   border-color: #00b4d8;
-  box-shadow: 0 0 0 3px rgba(0,180,216,0.1);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
 }
 
 .form-row input::placeholder {
@@ -607,7 +608,8 @@ nav a:hover {
   font-family: 'Segoe UI', sans-serif;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   overflow-x: hidden;
   background: #f5f7fa;
@@ -627,7 +629,7 @@ html, body {
   justify-content: space-between;
   align-items: center;
   padding: 15px 6%;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -658,7 +660,7 @@ html, body {
 }
 
 .nav-link:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   color: #ffd166;
 }
 
@@ -675,7 +677,7 @@ html, body {
 }
 
 .nav-btn:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   color: #ffd166;
 }
 
@@ -692,22 +694,22 @@ html, body {
 
 .receptionist-btn {
   background: linear-gradient(135deg, #00b4d8, #0096c7);
-  box-shadow: 0 4px 15px rgba(0,180,216,0.4);
+  box-shadow: 0 4px 15px rgba(0, 180, 216, 0.4);
 }
 
 .receptionist-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,180,216,0.5);
+  box-shadow: 0 8px 25px rgba(0, 180, 216, 0.5);
 }
 
 .doctor-btn {
   background: linear-gradient(135deg, #1f3c88, #2d5a87);
-  box-shadow: 0 4px 15px rgba(31,60,136,0.4);
+  box-shadow: 0 4px 15px rgba(31, 60, 136, 0.4);
 }
 
 .doctor-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(31,60,136,0.5);
+  box-shadow: 0 8px 25px rgba(31, 60, 136, 0.5);
 }
 
 /* HERO + CAROUSEL */
@@ -754,13 +756,13 @@ html, body {
   border: none;
   border-radius: 30px;
   cursor: pointer;
-  box-shadow: 0 8px 25px rgba(0,119,182,0.35);
+  box-shadow: 0 8px 25px rgba(0, 119, 182, 0.35);
   transition: all 0.3s ease;
 }
 
 .learn-more-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(0,119,182,0.45);
+  box-shadow: 0 12px 35px rgba(0, 119, 182, 0.45);
 }
 
 .carousel-section {
@@ -776,7 +778,7 @@ html, body {
 }
 
 .carousel-caption {
-  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
   border-radius: 0 0 15px 15px;
   padding: 20px;
   bottom: 0;

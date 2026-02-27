@@ -43,7 +43,7 @@
 .add-btn {
   padding: 12px 24px;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -86,7 +86,7 @@
 
 .stat-card {
   background: white;
-  border-radius: 4px;
+  border-radius: 16px;
   padding: 20px;
   display: flex;
   align-items: center;
@@ -148,7 +148,7 @@
 /* ==================== FILTERS SECTION ==================== */
 .filters-section {
   background: white;
-  border-radius: 4px;
+  border-radius: 16px;
   padding: 24px;
   margin-bottom: 30px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -189,7 +189,7 @@
   width: 100%;
   padding: 12px 16px;
   border: 2px solid #e2e8f0;
-  border-radius: 4px;
+  border-radius: 10px;
   font-size: 14px;
   transition: all 0.2s ease;
   background: white;
@@ -211,7 +211,7 @@
 .filter-btn {
   padding: 12px 24px;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -257,7 +257,7 @@
   background: #e3f2fd;
   color: #1976d2;
   padding: 6px 16px;
-  border-radius: 4px;
+  border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
   display: inline-flex;
@@ -267,7 +267,7 @@
 /* ==================== TABLE CONTAINER ==================== */
 .table-container {
   background: white;
-  border-radius: 4px;
+  border-radius: 16px;
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
@@ -305,7 +305,7 @@
 .data-table th {
   background: #f8fafc;
   padding: 16px 20px;
-  text-align: left;
+  text-align: center;
   font-weight: 700;
   color: #475569;
   font-size: 12px;
@@ -321,6 +321,7 @@
   color: #334155;
   font-size: 14px;
   vertical-align: middle;
+  text-align: center;
 }
 
 .data-table tr:hover {

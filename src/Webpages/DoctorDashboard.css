@@ -5,3 +5,33 @@
 .doctor-dashboard-wrapper .sidebar {
     background: linear-gradient(180deg, #1f3c88 0%, #2d5a87 100%);
 }
+
+/* ==================== DOCTOR PROFILE PHOTO STYLES ==================== */
+/* Make the dashboard-header banner relative for the remove photo button */
+.appointments-page .dashboard-header {
+    position: relative;
+    overflow: visible;
+}
+
+/* Profile photo avatar hover lift */
+.appointments-page .dashboard-header div[title="Click to change profile photo"]:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Smooth entrance animation for profile photo section in edit mode */
+@keyframes photoFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.popup-card .profile-photo-edit-section {
+    animation: photoFadeIn 0.4s ease;
+}

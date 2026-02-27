@@ -30,30 +30,30 @@ function Laboratory() {
   // ==================== HELPER FUNCTIONS FOR SYMPTOMS ====================
   const formatSymptoms = (symptoms) => {
     if (!symptoms) return 'No symptoms';
-    
+
     if (Array.isArray(symptoms)) {
       const text = symptoms.join(', ');
       return text.length > 30 ? text.substring(0, 30) + '...' : text;
     }
-    
+
     if (typeof symptoms === 'string') {
       return symptoms.length > 30 ? symptoms.substring(0, 30) + '...' : symptoms;
     }
-    
+
     return 'Symptoms not specified';
   };
 
   const formatSymptomsFull = (symptoms) => {
     if (!symptoms) return 'No symptoms';
-    
+
     if (Array.isArray(symptoms)) {
       return symptoms.join(', ');
     }
-    
+
     if (typeof symptoms === 'string') {
       return symptoms;
     }
-    
+
     return 'Symptoms not specified';
   };
 
@@ -69,7 +69,7 @@ function Laboratory() {
       console.log("📥 Fetching laboratory data from MongoDB...");
       const response = await fetch('http://localhost:8001/api/laboratory');
       const data = await response.json();
-      
+
       if (data.success) {
         console.log("✅ Laboratory data fetched:", data);
         setLaboratoryPatients(data.groupedByTest);
@@ -94,7 +94,7 @@ function Laboratory() {
     // Load today's appointments from localStorage
     const today = new Date().toISOString().split('T')[0];
     const allAppointments = JSON.parse(localStorage.getItem('appointments') || '[]');
-    
+
     const todaysAppointments = allAppointments.filter(apt => {
       const aptDate = apt.date ? apt.date.split('T')[0] : apt.date;
       return aptDate === today;
@@ -171,7 +171,7 @@ function Laboratory() {
       if (data.success) {
         // Refresh laboratory data from MongoDB
         await fetchLaboratoryData();
-        
+
         // Remove from appointments if it was an appointment
         if (selectedPatient.sourceType === 'appointment' || !selectedPatient.sourceType) {
           setAppointments(prev => prev.filter(apt => apt.id !== selectedPatient.id));
@@ -195,12 +195,12 @@ function Laboratory() {
   const handleTestButtonClick = async (testName) => {
     setSelectedTestForList(testName);
     setShowPatientListPopup(true);
-    
+
     // Fetch latest data for this test from MongoDB
     try {
       const response = await fetch(`http://localhost:8001/api/laboratory/test/${testName}`);
       const data = await response.json();
-      
+
       if (data.success) {
         console.log(`✅ ${testName} patients:`, data.data);
         setLaboratoryPatients(prev => ({
@@ -307,7 +307,7 @@ function Laboratory() {
 
   // ==================== GET REPORT TITLE AND ICON ====================
   const getReportDetails = (testType) => {
-    switch(testType) {
+    switch (testType) {
       case "2D-Echocardiogram":
         return {
           title: "2D-ECHOCARDIOGRAM REPORT",
@@ -421,7 +421,7 @@ function Laboratory() {
         </div>
 
         {/* Search */}
-        <div className="search-box">
+        <div className="search-box ">
           <span className="search-icon">🔍</span>
           <input
             type="text"
@@ -444,7 +444,7 @@ function Laboratory() {
               <div
                 key={patient.id}
                 className="patient-item"
-                onClick={() => handlePatientClick({...patient, sourceType: 'appointment'})}
+                onClick={() => handlePatientClick({ ...patient, sourceType: 'appointment' })}
               >
                 <div className="patient-info">
                   <strong>{patient.patientName}</strong>
@@ -476,7 +476,7 @@ function Laboratory() {
               <div
                 key={patient.id}
                 className="patient-item"
-                onClick={() => handlePatientClick({...patient, sourceType: 'patient'})}
+                onClick={() => handlePatientClick({ ...patient, sourceType: 'patient' })}
               >
                 <div className="patient-info">
                   <strong>{patient.patientName}</strong>
@@ -603,14 +603,14 @@ function Laboratory() {
       {showReportPopup && selectedReportPatient && (
         <div className="popup-overlay" onClick={() => setShowReportPopup(false)}>
           <div className="popup-card report-popup" onClick={(e) => e.stopPropagation()}>
-            <div className="report-header" style={{ 
+            <div className="report-header" style={{
               background: selectedTestType === "2D-Echocardiogram" ? "linear-gradient(135deg, #1e2b4a, #2a3b5c)" :
-                          selectedTestType === "Electrocardiogram" ? "linear-gradient(135deg, #6b21a8, #86198f)" :
-                          "linear-gradient(135deg, #0e7490, #0891b2)"
+                selectedTestType === "Electrocardiogram" ? "linear-gradient(135deg, #6b21a8, #86198f)" :
+                  "linear-gradient(135deg, #0e7490, #0891b2)"
             }}>
               <div className="header-top">
                 <div className="hospital-info">
-                  <h2 style={{color:"white"}}>🏥 Medi Care Clinic</h2>
+                  <h2 style={{ color: "white" }}>🏥 Medi Care Clinic</h2>
                   <p>{getReportDetails(selectedTestType).department}</p>
                 </div>
                 <button className="close-btn" onClick={() => setShowReportPopup(false)}>×</button>

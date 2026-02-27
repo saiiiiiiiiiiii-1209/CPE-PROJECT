@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AppointmentForm from "./AppointmentForm";           // ✅ Direct import from same folder
-import PatientRegistrationForm from "./PatientRegistrationForm"; // ✅ Direct import from same folder
+import AppointmentForm from "./AppointmentForm";
+import PatientRegistrationForm from "./PatientRegistrationForm";
 import AdmitPatientForm from "./AdmitPatientForm";
-import Patientlist from "./Patientlist";
-import Appointment from "./Appointment";
-import AdmitList from "./Admitlist";
-import Doctors from "./Doctors";          // ✅ Direct import from same folder
-import BedView from "./doctor/BedView";
 import "./DashboardHome.css";
-import { color } from "framer-motion";
 
 
 function DashboardHome() {
@@ -21,84 +15,102 @@ function DashboardHome() {
   const [admissions, setAdmissions] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [popupType, setPopupType] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Available bed numbers
-  const availableBeds = [
-    "101", "102", "103", "104", "105",
-    "201", "202", "203", "204", "205",
-    "301", "302", "303", "304", "305",
-    "ICU-1", "ICU-2", "ICU-3", "ICU-4", "ICU-5",
-  ];
+  // Stats from backend
+  const [patientStats, setPatientStats] = useState({ total: 0, male: 0, female: 0, other: 0 });
+  const [admissionStats, setAdmissionStats] = useState({ total: 0, admitted: 0, discharged: 0 });
+  const [appointmentStats, setAppointmentStats] = useState({ total: 0, pending: 0, completed: 0, cancelled: 0 });
 
-  // ==================== LOAD DATA FROM LOCALSTORAGE ====================
+  // ==================== FETCH DATA FROM BACKEND API ====================
   useEffect(() => {
-    const savedAppointments = localStorage.getItem('appointments');
-    if (savedAppointments) setAppointments(JSON.parse(savedAppointments));
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        // Fetch all data in parallel
+        const [patientsRes, patientStatsRes, admissionsRes, admissionStatsRes, appointmentsRes, appointmentStatsRes] = await Promise.allSettled([
+          fetch('http://localhost:8001/api/patients'),
+          fetch('http://localhost:8001/api/patients/stats'),
+          fetch('http://localhost:8001/api/admitpatient'),
+          fetch('http://localhost:8001/api/admissionstats'),
+          fetch('http://localhost:8001/api/appointmentfindall'),
+          fetch('http://localhost:8001/api/appointments/stats'),
+        ]);
 
-    const savedPatients = localStorage.getItem('patients');
-    if (savedPatients) setPatients(JSON.parse(savedPatients));
+        // Process patients
+        if (patientsRes.status === 'fulfilled' && patientsRes.value.ok) {
+          const data = await patientsRes.value.json();
+          if (data.success) {
+            setPatients(data.data || []);
+          }
+        }
 
-    const savedAdmissions = localStorage.getItem('admissions');
-    if (savedAdmissions) setAdmissions(JSON.parse(savedAdmissions));
+        // Process patient stats
+        if (patientStatsRes.status === 'fulfilled' && patientStatsRes.value.ok) {
+          const data = await patientStatsRes.value.json();
+          if (data.success) {
+            setPatientStats(data.data || { total: 0, male: 0, female: 0, other: 0 });
+          }
+        }
+
+        // Process admissions
+        if (admissionsRes.status === 'fulfilled' && admissionsRes.value.ok) {
+          const data = await admissionsRes.value.json();
+          if (data.success) {
+            setAdmissions(data.data || []);
+          }
+        }
+
+        // Process admission stats
+        if (admissionStatsRes.status === 'fulfilled' && admissionStatsRes.value.ok) {
+          const data = await admissionStatsRes.value.json();
+          if (data.success) {
+            setAdmissionStats(data.data || { total: 0, admitted: 0, discharged: 0 });
+          }
+        }
+
+        // Process appointments
+        if (appointmentsRes.status === 'fulfilled' && appointmentsRes.value.ok) {
+          const data = await appointmentsRes.value.json();
+          if (data.success) {
+            setAppointments(data.appointments || data.data || []);
+            if (data.stats) {
+              setAppointmentStats(data.stats);
+            }
+          }
+        }
+
+        // Process appointment stats
+        if (appointmentStatsRes.status === 'fulfilled' && appointmentStatsRes.value.ok) {
+          const data = await appointmentStatsRes.value.json();
+          if (data.success) {
+            setAppointmentStats(data.data || { total: 0, pending: 0, completed: 0, cancelled: 0 });
+          }
+        }
+
+      } catch (error) {
+        console.error("❌ Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
   }, []);
 
-  // ==================== SAVE DATA TO LOCALSTORAGE ====================
-  useEffect(() => {
-    localStorage.setItem('appointments', JSON.stringify(appointments));
-  }, [appointments]);
-
-  useEffect(() => {
-    localStorage.setItem('patients', JSON.stringify(patients));
-  }, [patients]);
-
-  useEffect(() => {
-    localStorage.setItem('admissions', JSON.stringify(admissions));
-  }, [admissions]);
-
-  // ==================== APPOINTMENT FUNCTIONS ====================
-  const addAppointment = (appointment) => {
-    const newAppointment = {
-      id: `APT-${Date.now()}`,
-      ...appointment,
-      status: appointment.status || "Pending"
-    };
-    setAppointments(prev => [...prev, newAppointment]);
-    return newAppointment;
-  };
-
-  const updateAppointment = (id, updatedData) => {
-    setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, ...updatedData } : apt));
-  };
-
-  const deleteAppointment = (id) => {
-    setAppointments(prev => prev.filter(apt => apt.id !== id));
-  };
-
+  // ==================== COMPUTED VALUES ====================
   const getTodaysAppointments = () => {
     const today = new Date().toISOString().split('T')[0];
     return appointments.filter(apt => apt.date === today);
   };
 
+  const getAdmittedCount = () => {
+    // Prefer stats from backend, fallback to counting from data
+    if (admissionStats.admitted > 0) return admissionStats.admitted;
+    return admissions.filter(adm => adm.status === "Admitted").length;
+  };
+
   // ==================== PATIENT FUNCTIONS ====================
-  const addPatient = (patient) => {
-    const newPatient = {
-      id: `PAT-${Date.now()}`,
-      ...patient,
-      registeredDate: new Date().toISOString().split('T')[0],
-      registeredTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
-    };
-    setPatients(prev => [...prev, newPatient]);
-    return newPatient;
-  };
-
-  const updatePatient = (id, updatedData) => {
-    setPatients(prev => prev.map(p => p.id === id ? { ...p, ...updatedData } : p));
-  };
-
-  const deletePatient = (id) => {
-    setPatients(prev => prev.filter(p => p.id !== id));
-  };
-
   const searchPatients = (query) => {
     if (!query) return [];
     return patients.filter(p =>
@@ -106,10 +118,6 @@ function DashboardHome() {
       p.phone?.includes(query) ||
       p.email?.toLowerCase().includes(query.toLowerCase())
     );
-  };
-
-  const getPatientById = (id) => {
-    return patients.find(p => p.id === id);
   };
 
   // ==================== ADMISSION FUNCTIONS ====================
@@ -125,27 +133,32 @@ function DashboardHome() {
     return newAdmission;
   };
 
-  const updateAdmission = (id, updatedData) => {
-    setAdmissions(prev => prev.map(adm => adm.id === id ? { ...adm, ...updatedData } : adm));
+  const addAppointment = (appointment) => {
+    const newAppointment = {
+      id: `APT-${Date.now()}`,
+      ...appointment,
+      status: appointment.status || "Pending"
+    };
+    setAppointments(prev => [...prev, newAppointment]);
+    return newAppointment;
   };
 
-  const dischargePatient = (id) => {
-    setAdmissions(prev => prev.map(adm =>
-      adm.id === id ? {
-        ...adm,
-        status: "Discharged",
-        dischargeDate: new Date().toISOString().split('T')[0]
-      } : adm
-    ));
+  const addPatient = (patient) => {
+    const newPatient = {
+      id: `PAT-${Date.now()}`,
+      ...patient,
+      registeredDate: new Date().toISOString().split('T')[0],
+      registeredTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+    };
+    setPatients(prev => [...prev, newPatient]);
+    return newPatient;
   };
 
   const getAvailableBeds = () => {
-    const occupied = admissions.filter(adm => adm.status === "Admitted").map(adm => adm.bedNo);
-    return availableBeds.filter(bed => !occupied.includes(bed));
-  };
-
-  const getAdmittedPatients = () => {
-    return admissions.filter(adm => adm.status === "Admitted");
+    const totalBeds = 20;
+    const occupiedBeds = admissions.filter(adm => adm.status === "Admitted").map(adm => adm.bedNo);
+    const allBeds = Array.from({ length: totalBeds }, (_, i) => `B${i + 1}`);
+    return allBeds.filter(bed => !occupiedBeds.includes(bed));
   };
 
   // ==================== POPUP HANDLERS ====================
@@ -159,40 +172,39 @@ function DashboardHome() {
     setPopupType("");
   };
 
-  // ==================== STATISTICS ====================
+  // ==================== STATISTICS (from backend API) ====================
   const stats = [
-    { label: "Total Appointments", value: appointments?.length || 0, icon: "📅", color: "#1976d2" },
+    { label: "Total Patients", value: patientStats.total || patients.length || 0, icon: "👥", color: "#1976d2" },
+    { label: "Admitted Patients", value: getAdmittedCount(), icon: "🛏️", color: "#d32f2f" },
+    { label: "Total Appointments", value: appointmentStats.total || appointments.length || 0, icon: "📅", color: "#f57c00" },
     { label: "Today's Appointments", value: getTodaysAppointments().length, icon: "🗓️", color: "#388e3c" },
-    { label: "Registered Patients", value: patients?.length || 0, icon: "👥", color: "#f57c00" },
-    { label: "Admitted Patients", value: getAdmittedPatients().length, icon: "🛏️", color: "#d32f2f" },
-    
   ];
 
-  // Recent activities
+  // Recent activities from backend data
   const recentActivities = [
     ...(appointments?.slice(-3).map(apt => ({
-      time: `${apt.date} ${apt.time}`,
-      activity: `Appointment booked for ${apt.patientName}`,
+      time: `${apt.date || ''} ${apt.time || ''}`,
+      activity: `Appointment booked for ${apt.patientName || 'Unknown'}`,
       type: "appointment"
     })) || []),
     ...(patients?.slice(-3).map(pat => ({
-      time: `${pat.registeredDate} ${pat.registeredTime}`,
-      activity: `New patient registered: ${pat.patientName}`,
+      time: `${pat.registeredDate || pat.createdAt || ''} ${pat.registeredTime || ''}`,
+      activity: `New patient registered: ${pat.patientName || 'Unknown'}`,
       type: "registration"
     })) || []),
     ...(admissions?.slice(-3).map(adm => ({
-      time: `${adm.admissionDate} ${adm.admissionTime}`,
-      activity: `Patient admitted: ${adm.patientName} (Bed ${adm.bedNo})`,
+      time: `${adm.fromDate || adm.admissionDate || ''} ${adm.admissionTime || ''}`,
+      activity: `Patient admitted: ${adm.patientName || 'Unknown'} (Bed ${adm.bedNo || '-'})`,
       type: "admission"
     })) || [])
-  ].sort((a, b) => b.time.localeCompare(a.time)).slice(0, 5);
+  ].sort((a, b) => (b.time || '').localeCompare(a.time || '')).slice(0, 5);
 
   return (
     <div className="dashboard-home">
       {/* ==================== PAGE HEADER ==================== */}
       <div className="dashboard-header">
-        <h1 style={{color:"white"}}>Welcome to Reception Dashboardd</h1>
-        <p className="subtitle" style={{color:"white"}}>
+        <h1 style={{ color: "white" }}>Welcome to Reception Dashboard</h1>
+        <p className="subtitle" style={{ color: "white" }}>
           {new Date().toLocaleDateString("en-US", {
             weekday: "long", year: "numeric", month: "long", day: "numeric",
           })}
@@ -205,7 +217,7 @@ function DashboardHome() {
           <div key={index} className="stat-card" style={{ borderLeft: `4px solid ${stat.color}` }}>
             <div className="stat-icon">{stat.icon}</div>
             <div className="stat-info">
-              <h3>{stat.value}</h3>
+              <h3>{loading ? '...' : stat.value}</h3>
               <p>{stat.label}</p>
             </div>
           </div>
@@ -283,7 +295,7 @@ function DashboardHome() {
             ))
           ) : (
             <div className="no-activities">
-              <p>No recent activities</p>
+              <p>{loading ? 'Loading activities...' : 'No recent activities'}</p>
             </div>
           )}
         </div>
@@ -312,7 +324,7 @@ function DashboardHome() {
           addAdmission={addAdmission}
           searchPatients={searchPatients}
           getAvailableBeds={getAvailableBeds}
-          availableBeds={availableBeds}
+          availableBeds={getAvailableBeds()}
         />
       )}
     </div>

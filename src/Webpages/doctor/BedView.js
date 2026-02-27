@@ -43,7 +43,24 @@ const BedView = ({ totalBeds = 20 }) => {
   // Log admissions for debugging
   useEffect(() => {
     console.log("🛏️ BedView total admissions:", admissions.length, admissions);
+    // Log all field names of first admission to help debug
+    if (admissions.length > 0) {
+      console.log("🛏️ First admission keys:", Object.keys(admissions[0]));
+      console.log("🛏️ First admission full data:", JSON.stringify(admissions[0], null, 2));
+    }
   }, [admissions]);
+
+  // Helper: get patient name from any possible field
+  const getPatientName = (admission) => {
+    return admission.patientName
+      || admission.patient_name
+      || admission.name
+      || admission.fullName
+      || admission.full_name
+      || admission.patient?.name
+      || admission.patientname
+      || 'Unknown Patient';
+  };
 
   const bedNumbers = Array.from({ length: totalBeds }, (_, i) => `B${i + 1}`);
 
@@ -75,7 +92,7 @@ const BedView = ({ totalBeds = 20 }) => {
   const filteredBedNumbers = bedNumbers.filter(bedNo => {
     if (!searchTerm) return true;
     const admission = occupiedBeds[bedNo];
-    const patientName = admission ? admission.patientName.toLowerCase() : "";
+    const patientName = admission ? getPatientName(admission).toLowerCase() : "";
     return bedNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patientName.includes(searchTerm.toLowerCase());
   });
@@ -104,11 +121,11 @@ const BedView = ({ totalBeds = 20 }) => {
         <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
           <div className="bed-stats">
             <div className="stat-item available">
-              <i className="fas fa-bed" style={{ color: '#2e7d32' }}></i>
+              <i className="fas fa-bed" style={{ color: '#0d9488' }}></i>
               <span>Available: {availableCount}</span>
             </div>
             <div className="stat-item occupied">
-              <i className="fas fa-bed" style={{ color: '#c62828' }}></i>
+              <i className="fas fa-bed" style={{ color: '#d97706' }}></i>
               <span>Occupied: {occupiedCount}</span>
             </div>
           </div>
@@ -172,14 +189,19 @@ const BedView = ({ totalBeds = 20 }) => {
               key={bedNo}
               className={`bed-card ${isOccupied ? 'occupied' : 'available'} ${isFlipped ? 'flipped' : ''}`}
               onClick={() => handleCardClick(bedNo)}
-              title={isOccupied ? `Patient: ${admission.patientName}` : 'Available bed'}
+              title={isOccupied ? `Patient: ${getPatientName(admission)}` : 'Available bed'}
             >
               <div className="bed-card-inner">
                 <div className="bed-card-front">
                   <div className="bed-icon">
-                    <i className={`fas fa-bed ${isOccupied ? 'occupied-icon' : 'available-icon'}`}></i>
+                    {isOccupied ? '🛌' : '🛏️'}
                   </div>
                   <div className="bed-number">{bedNo}</div>
+                  {isOccupied && (
+                    <div className="bed-patient-name">
+                      👤 {getPatientName(admission)}
+                    </div>
+                  )}
                   <div className={`bed-status ${isOccupied ? 'occupied' : 'available'}`}>
                     {isOccupied ? 'Occupied' : 'Available'}
                   </div>
@@ -187,21 +209,18 @@ const BedView = ({ totalBeds = 20 }) => {
                 <div className="bed-card-back">
                   {isOccupied ? (
                     <div className="patient-details">
-                      <h4>{admission.patientName}</h4>
-                      <p><i className="fas fa-calendar-alt"></i> <strong>Age:</strong> {admission.age}</p>
-                      <p><i className="fas fa-venus-mars"></i> <strong>Gender:</strong> {admission.gender}</p>
-                      <p><i className="fas fa-calendar-check"></i> <strong>Admitted:</strong> {admission.fromDate || admission.admissionDate}</p>
+                      <h4>👤 {getPatientName(admission)}</h4>
+                      <p>📅 <strong>Age:</strong> {admission.age || '-'}</p>
+                      <p>⚧ <strong>Gender:</strong> {admission.gender || '-'}</p>
+                      <p>🏥 <strong>Admitted:</strong> {admission.fromDate || admission.admissionDate || '-'}</p>
                       {admission.symptoms?.length > 0 && (
-                        <p><i className="fas fa-stethoscope"></i> <strong>Symptoms:</strong> {admission.symptoms.slice(0, 2).join(', ')}{admission.symptoms.length > 2 ? '…' : ''}</p>
-                      )}
-                      {admission.admittingDoctor && (
-                        <p><i className="fas fa-user-md"></i> <strong>Dr.</strong> {admission.admittingDoctor}</p>
+                        <p>🩺 <strong>Symptoms:</strong> {admission.symptoms.slice(0, 2).join(', ')}{admission.symptoms.length > 2 ? '…' : ''}</p>
                       )}
                     </div>
                   ) : (
                     <div className="available-message">
-                      <i className="fas fa-check-circle" style={{ fontSize: '24px', color: '#2e7d32', marginBottom: '10px' }}></i>
-                      <p>✨ Available for admit patient</p>
+                      <span style={{ fontSize: '32px', marginBottom: '8px' }}>✅</span>
+                      <p>Available for admission</p>
                     </div>
                   )}
                 </div>

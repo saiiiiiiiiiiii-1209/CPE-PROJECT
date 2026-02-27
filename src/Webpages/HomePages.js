@@ -46,8 +46,8 @@ function HomePages() {
         <div className="home-logo">🏥 Advance Hospital</div>
         <nav className="home-nav">
           <a href="/" className="nav-link">Home</a>
-          <button 
-            onClick={scrollToAbout} 
+          <button
+            onClick={scrollToAbout}
             className="nav-btn"
           >
             About Us

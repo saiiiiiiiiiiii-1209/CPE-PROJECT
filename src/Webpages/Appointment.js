@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppointments } from "../context/AppointmentsContext";
-import AppointmentForm from "./AppointmentForm";  
+import AppointmentForm from "./AppointmentForm";
 import "./Appointment.css";
 
 function Appointment() {
   const navigate = useNavigate();
   const { appointments, updateAppointment, deleteAppointment } =
     useAppointments();
-    
+
   const [searchTerm, setSearchTerm] = useState("");
   const [stats, setStats] = useState({
     total: 0,
@@ -28,8 +28,8 @@ function Appointment() {
   const [loading, setLoading] = useState(true);
 
   const cardiologySymptoms = [
-    "Chest Pain", "Shortness of Breath", "Palpitations", 
-    "High Blood Pressure", "Dizziness", "Fatigue", 
+    "Chest Pain", "Shortness of Breath", "Palpitations",
+    "High Blood Pressure", "Dizziness", "Fatigue",
     "Swelling in Legs", "Irregular Heartbeat",
     "Nausea", "Sweating", "Pain in Arms", "Jaw Pain",
     "Lightheadedness", "Rapid Heartbeat", "Slow Heartbeat",
@@ -49,26 +49,27 @@ function Appointment() {
       console.log("📥 Fetching appointments from backend...");
       const response = await fetch('http://localhost:8001/api/appointmentfindall');
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         console.log("✅ Appointments fetched:", data.appointments.length);
         setLocalAppointments(data.appointments);
         setStats(data.stats);
-        
+
         // Update localStorage as backup
         localStorage.setItem('appointments', JSON.stringify(data.appointments));
+        window.dispatchEvent(new Event("appointmentsUpdated"));
       } else {
         console.error("❌ Failed to fetch appointments:", data.message);
         // Fallback to localStorage
         const savedAppointments = JSON.parse(localStorage.getItem('appointments') || '[]');
         setLocalAppointments(savedAppointments);
-        
+
         // Calculate stats from localStorage
         const total = savedAppointments.length;
         const pending = savedAppointments.filter(a => a.status === "Pending").length;
         const completed = savedAppointments.filter(a => a.status === "Completed").length;
         const cancelled = savedAppointments.filter(a => a.status === "Cancelled").length;
-        
+
         setStats({ total, pending, completed, cancelled });
       }
     } catch (error) {
@@ -76,13 +77,13 @@ function Appointment() {
       // Fallback to localStorage
       const savedAppointments = JSON.parse(localStorage.getItem('appointments') || '[]');
       setLocalAppointments(savedAppointments);
-      
+
       // Calculate stats from localStorage
       const total = savedAppointments.length;
       const pending = savedAppointments.filter(a => a.status === "Pending").length;
       const completed = savedAppointments.filter(a => a.status === "Completed").length;
       const cancelled = savedAppointments.filter(a => a.status === "Cancelled").length;
-      
+
       setStats({ total, pending, completed, cancelled });
     } finally {
       setLoading(false);
@@ -94,7 +95,7 @@ function Appointment() {
     try {
       const response = await fetch('http://localhost:8001/api/appointments/stats');
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         setStats(data.data);
       }
@@ -114,21 +115,21 @@ function Appointment() {
   const addAppointment = async (appointment) => {
     console.log("%c🟢🟢🟢 ADD APPOINTMENT CALLED 🟢🟢🟢", "color: green; font-size: 16px; font-weight: bold");
     console.log("📦 Data received from form:", appointment);
-    
+
     try {
       setIsLoading(true);
-      
+
       const now = new Date();
       const bookingDate = now.toISOString().split('T')[0];
-      const bookingTime = now.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        hour12: false 
+      const bookingTime = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
       });
-      
+
       console.log("📅 Booking Date:", bookingDate);
       console.log("⏰ Booking Time:", bookingTime);
-      
+
       let symptomsString = "";
       if (Array.isArray(appointment.symptoms)) {
         symptomsString = appointment.symptoms.join(", ");
@@ -164,7 +165,7 @@ function Appointment() {
       });
 
       console.log("📥 Response status:", response.status);
-      
+
       let data;
       try {
         data = await response.json();
@@ -177,7 +178,7 @@ function Appointment() {
       if (response.ok && data.success) {
         console.log("%c✅ SUCCESS! Appointment saved to MongoDB", "color: green; font-size: 16px");
         console.log("📋 Appointment ID:", data.appointment.appointmentId);
-        
+
         const newAppointment = {
           id: data.appointment._id,
           _id: data.appointment._id,
@@ -195,25 +196,26 @@ function Appointment() {
           bookingDate: data.appointment.bookingDate,
           bookingTime: data.appointment.bookingTime
         };
-        
+
         setLocalAppointments(prev => [...prev, newAppointment]);
-        
+
         // Update stats
         setStats(prev => ({
           ...prev,
           total: prev.total + 1,
           pending: prev.pending + 1
         }));
-        
+
         // Update localStorage as backup
         const existingAppointments = JSON.parse(localStorage.getItem('appointments') || '[]');
         const updatedAppointments = [...existingAppointments, newAppointment];
         localStorage.setItem('appointments', JSON.stringify(updatedAppointments));
-        
+        window.dispatchEvent(new Event("appointmentsUpdated"));
+
         alert(`✅ Appointment booked successfully! ID: ${data.appointment.appointmentId}`);
-        
+
         setShowPopup(false);
-        
+
         return newAppointment;
       } else {
         throw new Error(data.message || `Server error: ${response.status}`);
@@ -281,20 +283,20 @@ function Appointment() {
   const validateEditForm = () => {
     const newErrors = {};
     const currentDateTime = getCurrentDateTime();
-    
-    if (!validateName(formData.patientName)) 
+
+    if (!validateName(formData.patientName))
       newErrors.patientName = "Patient name must be 2-50 characters and contain only letters";
-    
-    if (!validateAge(formData.age)) 
+
+    if (!validateAge(formData.age))
       newErrors.age = "Age must be between 1-120 years";
-    
-    if (!formData.gender) 
+
+    if (!formData.gender)
       newErrors.gender = "Please select gender";
-    
-    if (!validatePhone(formData.phone)) 
+
+    if (!validatePhone(formData.phone))
       newErrors.phone = "Enter valid 10-digit number starting with 7,8,9";
-    
-    if (!formData.date) 
+
+    if (!formData.date)
       newErrors.date = "Please select appointment date";
     else {
       const selectedDate = new Date(formData.date);
@@ -303,14 +305,14 @@ function Appointment() {
       if (selectedDate < today)
         newErrors.date = "Appointment date cannot be in the past";
     }
-    
-    if (!formData.time) 
+
+    if (!formData.time)
       newErrors.time = "Please select appointment time";
     else if (formData.date === currentDateTime.date) {
       if (formData.time < currentDateTime.time)
         newErrors.time = "Appointment time cannot be in the past";
     }
-    
+
     setEditErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -330,10 +332,10 @@ function Appointment() {
     } else if (!Array.isArray(apt.symptoms)) {
       symptomsArray = [];
     }
-    
+
     setSelectedAppointment(apt);
-    setFormData({ 
-      ...apt, 
+    setFormData({
+      ...apt,
       symptoms: symptomsArray,
       type: apt.type || "Cardiology",
       doctor: apt.doctor || "Dr. Pranjal Patil",
@@ -346,13 +348,13 @@ function Appointment() {
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === "phone") {
       const cleaned = value.replace(/\D/g, '');
       if (cleaned.length <= 10) {
         setFormData(prev => ({ ...prev, [name]: cleaned }));
       }
-    } 
+    }
     else if (name === "age") {
       if (value === "" || /^\d+$/.test(value)) {
         const ageNum = parseInt(value);
@@ -360,7 +362,7 @@ function Appointment() {
           setFormData(prev => ({ ...prev, [name]: value }));
         }
       }
-    } 
+    }
     else if (name === "patientName") {
       if (value === "" || /^[a-zA-Z\s]*$/.test(value)) {
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -369,7 +371,7 @@ function Appointment() {
     else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
-    
+
     if (editErrors[name]) {
       setEditErrors(prev => ({ ...prev, [name]: "" }));
     }
@@ -386,20 +388,20 @@ function Appointment() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    
+
     if (!validateEditForm()) {
       alert("❌ Please fix the errors before saving!");
       return;
     }
-    
+
     try {
       setIsLoading(true);
-      
+
       const updatedData = {
         ...formData,
         symptoms: formData.symptoms?.join(", ") || ""
       };
-      
+
       const response = await fetch(`http://localhost:8001/api/appointments/${selectedAppointment._id || selectedAppointment.id}`, {
         method: 'PUT',
         headers: {
@@ -407,27 +409,28 @@ function Appointment() {
         },
         body: JSON.stringify(updatedData)
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         console.log("✅ Appointment updated in MongoDB:", data);
-        
-        setLocalAppointments(prev => 
-          prev.map(apt => (apt._id === selectedAppointment._id || apt.id === selectedAppointment.id) 
-            ? { ...apt, ...updatedData } 
+
+        setLocalAppointments(prev =>
+          prev.map(apt => (apt._id === selectedAppointment._id || apt.id === selectedAppointment.id)
+            ? { ...apt, ...updatedData }
             : apt)
         );
-        
+
         // Update localStorage as backup
         const existingAppointments = JSON.parse(localStorage.getItem('appointments') || '[]');
-        const updatedAppointments = existingAppointments.map(apt => 
-          (apt._id === selectedAppointment._id || apt.id === selectedAppointment.id) 
-            ? { ...apt, ...updatedData } 
+        const updatedAppointments = existingAppointments.map(apt =>
+          (apt._id === selectedAppointment._id || apt.id === selectedAppointment.id)
+            ? { ...apt, ...updatedData }
             : apt
         );
         localStorage.setItem('appointments', JSON.stringify(updatedAppointments));
-        
+        window.dispatchEvent(new Event("appointmentsUpdated"));
+
         setShowEditPopup(false);
         alert(`✅ Appointment updated successfully!`);
       } else {
@@ -443,22 +446,22 @@ function Appointment() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this appointment?")) return;
-    
+
     try {
       setIsLoading(true);
-      
+
       const appointment = localAppointments.find(apt => apt.id === id || apt._id === id);
       const mongoId = appointment?._id || id;
-      
+
       const response = await fetch(`http://localhost:8001/api/appointments/${mongoId}`, {
         method: 'DELETE'
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         console.log("✅ Appointment deleted from MongoDB");
-        
+
         // Update stats before removing
         const deletedAppointment = localAppointments.find(apt => apt.id === id || apt._id === id);
         if (deletedAppointment) {
@@ -468,14 +471,15 @@ function Appointment() {
             [deletedAppointment.status.toLowerCase()]: prev[deletedAppointment.status.toLowerCase()] - 1
           }));
         }
-        
+
         setLocalAppointments(prev => prev.filter(apt => apt.id !== id && apt._id !== id));
-        
+
         // Update localStorage as backup
         const existingAppointments = JSON.parse(localStorage.getItem('appointments') || '[]');
         const updatedAppointments = existingAppointments.filter(apt => apt.id !== id && apt._id !== id);
         localStorage.setItem('appointments', JSON.stringify(updatedAppointments));
-        
+        window.dispatchEvent(new Event("appointmentsUpdated"));
+
         alert("✅ Appointment deleted successfully!");
       } else {
         throw new Error(data.message || "Failed to delete");
@@ -493,7 +497,7 @@ function Appointment() {
       const appointment = localAppointments.find(apt => apt.id === id || apt._id === id);
       const oldStatus = appointment?.status;
       const mongoId = appointment?._id || id;
-      
+
       const response = await fetch(`http://localhost:8001/api/appointments/${mongoId}/status`, {
         method: 'PATCH',
         headers: {
@@ -501,29 +505,30 @@ function Appointment() {
         },
         body: JSON.stringify({ status })
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         console.log("✅ Status updated in MongoDB");
-        
+
         // Update stats
         setStats(prev => ({
           ...prev,
           [oldStatus.toLowerCase()]: prev[oldStatus.toLowerCase()] - 1,
           [status.toLowerCase()]: prev[status.toLowerCase()] + 1
         }));
-        
-        setLocalAppointments(prev => 
+
+        setLocalAppointments(prev =>
           prev.map(apt => (apt.id === id || apt._id === id) ? { ...apt, status } : apt)
         );
-        
+
         // Update localStorage as backup
         const existingAppointments = JSON.parse(localStorage.getItem('appointments') || '[]');
-        const updatedAppointments = existingAppointments.map(apt => 
+        const updatedAppointments = existingAppointments.map(apt =>
           (apt.id === id || apt._id === id) ? { ...apt, status } : apt
         );
         localStorage.setItem('appointments', JSON.stringify(updatedAppointments));
+        window.dispatchEvent(new Event("appointmentsUpdated"));
       } else {
         throw new Error(data.message || "Failed to update status");
       }
@@ -610,7 +615,7 @@ function Appointment() {
           <thead>
             <tr>
               <th>Sr. No.</th>
-              <th>Appointment ID</th>
+
               <th>Patient</th>
               <th>Age/Gender</th>
               <th>Phone</th>
@@ -627,9 +632,7 @@ function Appointment() {
               filteredAppointments.map((apt, index) => (
                 <tr key={apt._id || apt.id || index}>
                   <td>{index + 1}</td>
-                  <td>
-                    <strong>{apt.appointmentId || 'N/A'}</strong>
-                  </td>
+
                   <td>{apt.patientName}</td>
                   <td>
                     {apt.age || "-"} / {apt.gender || "-"}
@@ -652,15 +655,15 @@ function Appointment() {
                         fontSize: "13px",
                         fontWeight: "600",
                         cursor: "pointer",
-                        backgroundColor: 
+                        backgroundColor:
                           apt.status === "Pending" ? "#fff3cd" :
-                          apt.status === "Completed" ? "#d4edda" : "#f8d7da",
-                        color: 
+                            apt.status === "Completed" ? "#d4edda" : "#f8d7da",
+                        color:
                           apt.status === "Pending" ? "#856404" :
-                          apt.status === "Completed" ? "#155724" : "#721c24",
-                        borderColor: 
+                            apt.status === "Completed" ? "#155724" : "#721c24",
+                        borderColor:
                           apt.status === "Pending" ? "#ffeeba" :
-                          apt.status === "Completed" ? "#c3e6cb" : "#f5c6cb"
+                            apt.status === "Completed" ? "#c3e6cb" : "#f5c6cb"
                       }}
                     >
                       <option value="Pending">Pending</option>
@@ -790,17 +793,17 @@ function Appointment() {
                 <h3 style={{ margin: "0 0 15px 0", color: "#0d6efd", fontSize: "16px" }}>Appointment Information</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
                   <div><strong>Appointment ID:</strong> {selectedAppointment.appointmentId || 'N/A'}</div>
-                  <div><strong>Status:</strong> 
+                  <div><strong>Status:</strong>
                     <span style={{
                       marginLeft: "8px",
                       padding: "3px 8px",
                       borderRadius: "4px",
-                      backgroundColor: 
+                      backgroundColor:
                         selectedAppointment.status === "Pending" ? "#fff3cd" :
-                        selectedAppointment.status === "Completed" ? "#d4edda" : "#f8d7da",
-                      color: 
+                          selectedAppointment.status === "Completed" ? "#d4edda" : "#f8d7da",
+                      color:
                         selectedAppointment.status === "Pending" ? "#856404" :
-                        selectedAppointment.status === "Completed" ? "#155724" : "#721c24"
+                          selectedAppointment.status === "Completed" ? "#155724" : "#721c24"
                     }}>
                       {selectedAppointment.status}
                     </span>
@@ -925,10 +928,10 @@ function Appointment() {
                         placeholder="Patient Name *"
                         value={formData.patientName || ""}
                         onChange={handleEditChange}
-                        style={{...inputStyle, ...(editErrors.patientName ? errorStyle : {})}}
+                        style={{ ...inputStyle, ...(editErrors.patientName ? errorStyle : {}) }}
                         required
                       />
-                      {editErrors.patientName && <span style={{color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block"}}>{editErrors.patientName}</span>}
+                      {editErrors.patientName && <span style={{ color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block" }}>{editErrors.patientName}</span>}
                     </div>
                     <div>
                       <input
@@ -939,17 +942,17 @@ function Appointment() {
                         onChange={handleEditChange}
                         min="1"
                         max="120"
-                        style={{...inputStyle, ...(editErrors.age ? errorStyle : {})}}
+                        style={{ ...inputStyle, ...(editErrors.age ? errorStyle : {}) }}
                         required
                       />
-                      {editErrors.age && <span style={{color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block"}}>{editErrors.age}</span>}
+                      {editErrors.age && <span style={{ color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block" }}>{editErrors.age}</span>}
                     </div>
                     <div>
                       <select
                         name="gender"
                         value={formData.gender || ""}
                         onChange={handleEditChange}
-                        style={{...inputStyle, ...(editErrors.gender ? errorStyle : {})}}
+                        style={{ ...inputStyle, ...(editErrors.gender ? errorStyle : {}) }}
                         required
                       >
                         <option value="">Gender</option>
@@ -957,7 +960,7 @@ function Appointment() {
                         <option value="Female">Female</option>
                         <option value="Other">Other</option>
                       </select>
-                      {editErrors.gender && <span style={{color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block"}}>{editErrors.gender}</span>}
+                      {editErrors.gender && <span style={{ color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block" }}>{editErrors.gender}</span>}
                     </div>
                     <div style={{ gridColumn: "span 2" }}>
                       <input
@@ -966,10 +969,10 @@ function Appointment() {
                         value={formData.phone || ""}
                         onChange={handleEditChange}
                         maxLength="10"
-                        style={{...inputStyle, ...(editErrors.phone ? errorStyle : {})}}
+                        style={{ ...inputStyle, ...(editErrors.phone ? errorStyle : {}) }}
                         required
                       />
-                      {editErrors.phone && <span style={{color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block"}}>{editErrors.phone}</span>}
+                      {editErrors.phone && <span style={{ color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block" }}>{editErrors.phone}</span>}
                     </div>
                     <div style={{ gridColumn: "span 2" }}>
                       <input
@@ -978,10 +981,10 @@ function Appointment() {
                         placeholder="Email *"
                         value={formData.email || ""}
                         onChange={handleEditChange}
-                        style={{...inputStyle, ...(editErrors.email ? errorStyle : {})}}
+                        style={{ ...inputStyle, ...(editErrors.email ? errorStyle : {}) }}
                         required
                       />
-                      {editErrors.email && <span style={{color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block"}}>{editErrors.email}</span>}
+                      {editErrors.email && <span style={{ color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block" }}>{editErrors.email}</span>}
                     </div>
                   </div>
                 </div>
@@ -990,7 +993,7 @@ function Appointment() {
                 <div style={{ background: "#f8f9fa", padding: "15px", borderRadius: "8px" }}>
                   <h3 style={{ margin: "0 0 15px 0", color: "#0d6efd", fontSize: "16px" }}>Symptoms (Optional)</h3>
                   <div className="symptoms-container">
-                    <div 
+                    <div
                       className="symptoms-select-box"
                       onClick={() => setSymptomsDropdownOpen(!symptomsDropdownOpen)}
                       style={{
@@ -1018,7 +1021,7 @@ function Appointment() {
                                 gap: "4px"
                               }}>
                                 {symptom}
-                                <button 
+                                <button
                                   type="button"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -1046,7 +1049,7 @@ function Appointment() {
                       </div>
                       <span style={{ fontSize: "12px", color: "#666" }}>▼</span>
                     </div>
-                    
+
                     {symptomsDropdownOpen && (
                       <div style={{
                         marginTop: "10px",
@@ -1085,10 +1088,10 @@ function Appointment() {
                         value={formData.date || ""}
                         onChange={handleEditChange}
                         min={new Date().toISOString().split('T')[0]}
-                        style={{...inputStyle, ...(editErrors.date ? errorStyle : {})}}
+                        style={{ ...inputStyle, ...(editErrors.date ? errorStyle : {}) }}
                         required
                       />
-                      {editErrors.date && <span style={{color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block"}}>{editErrors.date}</span>}
+                      {editErrors.date && <span style={{ color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block" }}>{editErrors.date}</span>}
                     </div>
                     <div>
                       <input
@@ -1097,10 +1100,10 @@ function Appointment() {
                         placeholder="Time *"
                         value={formData.time || ""}
                         onChange={handleEditChange}
-                        style={{...inputStyle, ...(editErrors.time ? errorStyle : {})}}
+                        style={{ ...inputStyle, ...(editErrors.time ? errorStyle : {}) }}
                         required
                       />
-                      {editErrors.time && <span style={{color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block"}}>{editErrors.time}</span>}
+                      {editErrors.time && <span style={{ color: "#dc3545", fontSize: "12px", marginTop: "3px", display: "block" }}>{editErrors.time}</span>}
                     </div>
                     <div>
                       <input
@@ -1127,7 +1130,7 @@ function Appointment() {
                         value={formData.notes || ""}
                         onChange={handleEditChange}
                         rows="3"
-                        style={{...inputStyle, resize: "vertical"}}
+                        style={{ ...inputStyle, resize: "vertical" }}
                       />
                     </div>
                   </div>
